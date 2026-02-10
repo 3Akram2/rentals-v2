@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+    mongo:
+        image: mongo:7
+        container_name: conva-ai_mongo
+        restart: unless-stopped
+        ports:
+            - '27017:27017'
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: admin
+            MONGO_INITDB_ROOT_PASSWORD: admin
+        volumes:
+            - ./.docker/mongo:/data/db
+    mongo-express:
+        image: mongo-express:latest
+        container_name: conva-ai_mongo_express
+        restart: unless-stopped
+        ports:
+            - '8081:8081'
+        environment:
+            ME_CONFIG_MONGODB_ADMINUSERNAME: admin
+            ME_CONFIG_MONGODB_ADMINPASSWORD: admin
+            ME_CONFIG_MONGODB_SERVER: mongo
+        depends_on:
+            - mongo
+
+    rabbitmq:
+        image: rabbitmq:4.1.0-management
+        environment:
+            RABBITMQ_DEFAULT_USER: customuser
+            RABBITMQ_DEFAULT_PASS: custompassword
+        ports:
+            - '5672:5672' # AMQP protocol
+            - '15672:15672' # Web management interface
+        volumes:
+            - ./.docker/rmq/lib:/var/lib/rabbitmq
+            - ./.docker/rmq/log:/var/log/rabbitmq

@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json.schemastore.org/nest-cli",
+  "collection": "@nestjs/schematics",
+  "sourceRoot": "src",
+  "compilerOptions": {
+    "deleteOutDir": true,
+    "assets": [
+      {
+        "include": "config.yaml",
+        "outDir": "./dist/app-config"
+      },
+      {
+        "include": "../keys",
+        "outDir": "./dist/runtime/keys"
+      },
+      {
+        "include": "../public_src",
+        "outDir": "./dist/runtime/public"
+      },
+      {
+        "include": "../public",
+        "outDir": "./dist/runtime/public"
+      },
+      {
+        "include": "../uploaded-files",
+        "outDir": "./dist/runtime/uploaded-files"
+      },
+      {
+        "include": "../certificates",
+        "outDir": "./dist/payments/certificates"
+      }
+    ],
+    "plugins": [
+      {
+        "name": "@nestjs/swagger",
+        "options": {
+          "dtoFileNameSuffix": [".dto.ts", ".model.ts"],
+          "classValidatorShim": true,
+          "introspectComments": true
+        }
+      }
+    ]
+  }
+}

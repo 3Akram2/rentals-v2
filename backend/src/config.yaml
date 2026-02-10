@@ -1,0 +1,63 @@
+app:
+    name: &anchor_appName rentals-v2
+    env: <%= process.env.NODE_ENV || "development" %>
+
+server:
+    port: 4001
+    compression: true
+    expressBodyLimit: 50mb
+    helmet: default
+    cors: default
+    authentication:
+        usernameField:
+            - email
+        passwordField: password
+        secret: <%= process.env.JWT_SECRET %>
+        renewExpiredToken: false
+        jwt:
+            secret: <%= process.env.JWT_SECRET %>
+            signOptions:
+                expiresIn: 30d
+                algorithm: HS256
+                header:
+                    typ: access
+                audience: https://*.rentals.local
+                issuer: rentals.local
+
+logger:
+    level: debug
+    namespaces:
+        - NestFactory:info
+        - InstanceLoader:info
+        - RoutesResolver:info
+        - RouterExplorer:info
+        - NestApplication:info
+        - MainApp:info
+        - MainApp_Middlewares:info
+        - Logger:info
+        - AccessLog:info
+        - PerformanceLog:off
+        - Database:info
+        - ApiDocumentation:info
+    accessLogger: true
+    file: false
+    json: false
+
+database:
+    uri: <%= process.env.DB_URL %>
+    database: <%= process.env.DB_NAME %>
+    username: <%= process.env.DB_USER %>
+    password: <%= process.env.DB_PASSWORD %>
+    authSource: admin
+    debug: false
+    runMigrations: true
+
+pagination:
+    default: 10
+    max: 100
+
+api-documentation:
+    published: true
+    title: Rentals V2 API Documentation
+    description: Rental Management System API
+    root: docs
