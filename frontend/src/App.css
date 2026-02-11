@@ -3603,7 +3603,7 @@ td.no-print {
 .role-checkbox {
   display: grid;
   grid-template-columns: 20px 1fr;
-  align-items: start;
+  align-items: center;
   gap: 10px;
   padding: 10px 12px;
   background: #f8f9fa;
@@ -3611,6 +3611,7 @@ td.no-print {
   cursor: pointer;
   transition: background 0.2s;
   line-height: 1.35;
+  min-height: 44px;
 }
 
 .role-checkbox:hover {
@@ -3621,7 +3622,8 @@ td.no-print {
   width: 18px;
   height: 18px;
   cursor: pointer;
-  margin-top: 2px;
+  margin: 0;
+  align-self: center;
 }
 
 .role-checkbox span {
