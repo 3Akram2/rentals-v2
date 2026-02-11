@@ -1,10 +1,13 @@
 import { Controller, Get, Post, Put, Delete, Body, Param, Query, NotFoundException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Endpoints } from 'src/shared/constants';
-import { Public } from 'src/app-auth/guards/app-auth.base.guard';
 import { RentalUsersService } from './rental-users.service';
 import { CreateRentalUserDto } from './dto/create-rental-user.dto';
 import { UpdateRentalUserDto } from './dto/update-rental-user.dto';
+import { AuthPermissions } from 'src/app-auth/guards/app-permissions.guard';
+import { Permissions } from 'src/groups/enums/permissions.enum';
+import { CurrentUser } from 'src/app-auth/user.decorator';
+import { User } from 'src/users/user.model';
 
 @ApiTags(Endpoints.RentalUsers)
 @Controller(Endpoints.RentalUsers)
@@ -12,24 +15,19 @@ export class RentalUsersController {
     constructor(private readonly rentalUsersService: RentalUsersService) {}
 
     @Get()
-    @Public()
-    async findAll(@Query('status') status?: string, @Query('search') search?: string) {
-        const query: any = {};
-        if (status) query.status = status;
-        if (search) query.name = { $regex: search, $options: 'i' };
-        return this.rentalUsersService.findAll(query, { sort: { name: 1 } });
+    @AuthPermissions(Permissions.RentalUserRead)
+    async findAll(@CurrentUser() actor: User, @Query('status') status?: string, @Query('search') search?: string) {
+        return this.rentalUsersService.findAllAccessible(actor, status, search);
     }
 
     @Get(':id')
-    @Public()
-    async findOne(@Param('id') id: string) {
-        const user = await this.rentalUsersService.findById(id);
-        if (!user) throw new NotFoundException('User not found');
-        return user;
+    @AuthPermissions(Permissions.RentalUserRead)
+    async findOne(@CurrentUser() actor: User, @Param('id') id: string) {
+        return this.rentalUsersService.findOneAccessible(actor, id);
     }
 
     @Post()
-    @Public()
+    @AuthPermissions(Permissions.RentalUserCreate)
     async create(@Body() data: CreateRentalUserDto) {
         return this.rentalUsersService.create({
             name: data.name,
@@ -40,8 +38,10 @@ export class RentalUsersController {
     }
 
     @Put(':id')
-    @Public()
-    async update(@Param('id') id: string, @Body() data: UpdateRentalUserDto) {
+    @AuthPermissions(Permissions.RentalUserUpdate)
+    async update(@CurrentUser() actor: User, @Param('id') id: string, @Body() data: UpdateRentalUserDto) {
+        await this.rentalUsersService.findOneAccessible(actor, id);
+
         const result = await this.rentalUsersService.findOneAndUpdate(
             { _id: id },
             { $set: { name: data.name, phone: data.phone, notes: data.notes, status: data.status } },
@@ -52,20 +52,23 @@ export class RentalUsersController {
     }
 
     @Delete(':id')
-    @Public()
-    async remove(@Param('id') id: string) {
+    @AuthPermissions(Permissions.RentalUserDelete)
+    async remove(@CurrentUser() actor: User, @Param('id') id: string) {
+        await this.rentalUsersService.findOneAccessible(actor, id);
         return this.rentalUsersService.deleteWithValidation(id);
     }
 
     @Post(':id/refresh')
-    @Public()
-    async refresh(@Param('id') id: string) {
+    @AuthPermissions(Permissions.RentalUserRead)
+    async refresh(@CurrentUser() actor: User, @Param('id') id: string) {
+        await this.rentalUsersService.findOneAccessible(actor, id);
         return this.rentalUsersService.refreshUserData(id);
     }
 
     @Get(':id/report/:year')
-    @Public()
-    async getReport(@Param('id') id: string, @Param('year') year: string) {
+    @AuthPermissions(Permissions.ReportRead)
+    async getReport(@CurrentUser() actor: User, @Param('id') id: string, @Param('year') year: string) {
+        await this.rentalUsersService.findOneAccessible(actor, id);
         return this.rentalUsersService.getUserReport(id, parseInt(year));
     }
 }

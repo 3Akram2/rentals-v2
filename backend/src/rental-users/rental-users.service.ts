@@ -6,6 +6,8 @@ import { BuildingsService } from '../buildings/buildings.service';
 import { PropertiesService } from '../properties/properties.service';
 import { PaymentsService } from '../payments/payments.service';
 import { ExpensesService } from '../expenses/expenses.service';
+import { BuildingAccessService } from 'src/app-auth/building-access.service';
+import { User } from 'src/users/user.model';
 
 @Injectable()
 export class RentalUsersService extends AbstractMongooseService<RentalUser, RentalUserDocument, RentalUsersRepo> {
@@ -15,8 +17,64 @@ export class RentalUsersService extends AbstractMongooseService<RentalUser, Rent
         private readonly propertiesService: PropertiesService,
         private readonly paymentsService: PaymentsService,
         private readonly expensesService: ExpensesService,
+        private readonly buildingAccessService: BuildingAccessService,
     ) {
         super(repo);
+    }
+
+    private async getAccessibleRentalUserIds(actor: User): Promise<string[] | null> {
+        if (await this.buildingAccessService.isSuperAdmin(actor)) return null;
+
+        const buildingFilter = await this.buildingAccessService.buildingFilter(actor, '_id');
+        const buildings = await this.buildingsService.findAll(buildingFilter);
+        const buildingIds = buildings.map((b: any) => String(b._id));
+
+        if (!buildingIds.length) return [];
+
+        const properties = await this.propertiesService.findAll({ buildingId: { $in: buildingIds } }, { projection: { renterId: 1 } });
+
+        const linkedIds = new Set<string>();
+
+        buildings.forEach((building: any) => {
+            (building.ownerGroups || []).forEach((group: any) => {
+                (group.members || []).forEach((member: any) => {
+                    if (member.userId) linkedIds.add(String(member.userId));
+                });
+            });
+        });
+
+        properties.forEach((property: any) => {
+            if (property.renterId) linkedIds.add(String(property.renterId));
+        });
+
+        return Array.from(linkedIds);
+    }
+
+    async findAllAccessible(actor: User, status?: string, search?: string) {
+        const query: any = {};
+        if (status) query.status = status;
+        if (search) query.name = { $regex: search, $options: 'i' };
+
+        const accessibleIds = await this.getAccessibleRentalUserIds(actor);
+        if (accessibleIds !== null) {
+            query._id = { $in: accessibleIds };
+        }
+
+        return this.findAll(query, { sort: { name: 1 } });
+    }
+
+    async findOneAccessible(actor: User, id: string) {
+        const user = await this.findById(id);
+        if (!user) throw new NotFoundException('User not found');
+
+        const accessibleIds = await this.getAccessibleRentalUserIds(actor);
+        if (accessibleIds === null) return user;
+
+        if (!accessibleIds.includes(String(id))) {
+            throw new NotFoundException('User not found');
+        }
+
+        return user;
     }
 
     async refreshUserData(userId: string): Promise<RentalUser> {
