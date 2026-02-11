@@ -89,7 +89,7 @@ function AiDashboard() {
           <div className="stat"><span className="stat-value">{stats.buildings || 0}</span> Buildings</div>
           <div className="stat"><span className="stat-value">{stats.units || 0}</span> Units</div>
           <div className="stat"><span className="stat-value">{stats.owners || 0}</span> Owners</div>
-          <div className="stat"><span className="stat-value">{stats.loginUsers || 0}</span> Login Users</div>
+          <div className="stat"><span className="stat-value">{stats.loginUsers || 0}</span> Admin Users</div>
           <div className="stat"><span className="stat-value">{stats.chats || 0}</span> Chats</div>
         </div>
       </div>

@@ -102,8 +102,8 @@ function BuildingAiAssistant({ building, visible, onClose }) {
             <div className="ai-assistant-subtitle">Building {building.number}{building.address ? ` • ${building.address}` : ''}</div>
           </div>
           <div className="ai-assistant-head-actions">
-            <button className="btn btn-secondary btn-small" onClick={handleClear}>Clear</button>
-            <button className="btn btn-secondary btn-small" onClick={onClose}>Close</button>
+            <button className="btn btn-secondary btn-small" onClick={handleClear}>Clear Chat</button>
+            <button className="btn btn-secondary btn-icon" onClick={onClose} aria-label="Dismiss chat" title="Dismiss chat">✕</button>
           </div>
         </div>
 
@@ -132,7 +132,7 @@ function BuildingAiAssistant({ building, visible, onClose }) {
             onChange={(e) => setQuestion(e.target.value)}
             placeholder="e.g. Who did not pay in 2026? How much did unit 4 pay?"
             onKeyDown={(e) => {
-              if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+              if (e.key === 'Enter' && !e.shiftKey) {
                 e.preventDefault();
                 handleAsk();
               }
