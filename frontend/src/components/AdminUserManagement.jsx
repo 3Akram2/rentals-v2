@@ -17,7 +17,7 @@ function AdminUserManagement({ onClose }) {
     email: '',
     username: '',
     password: '',
-    groups: [],
+    roleId: '',
     allowedBuildingIds: []
   });
 
@@ -61,19 +61,21 @@ function AdminUserManagement({ onClose }) {
 
   function openAddForm() {
     setEditingUser(null);
-    setForm({ name: '', email: '', username: '', password: '', groups: [], allowedBuildingIds: [] });
+    setForm({ name: '', email: '', username: '', password: '', roleId: '', allowedBuildingIds: [] });
     setShowForm(true);
     setError('');
   }
 
   function openEditForm(user) {
     setEditingUser(user);
+    const currentRoleId = (user.groups || []).map(g => typeof g === 'string' ? g : g._id)[0] || '';
+
     setForm({
       name: user.name || '',
       email: user.email || '',
       username: user.username || '',
       password: '',
-      groups: (user.groups || []).map(g => typeof g === 'string' ? g : g._id),
+      roleId: currentRoleId,
       allowedBuildingIds: (user.allowedBuildingIds || []).map(b => typeof b === 'string' ? b : b._id)
     });
     setShowForm(true);
@@ -90,18 +92,26 @@ function AdminUserManagement({ onClose }) {
     e.preventDefault();
     setError('');
 
+    if (!form.roleId) {
+      setError('Please select a role.');
+      return;
+    }
+
     try {
       if (editingUser) {
         const data = {
           name: form.name,
           email: form.email,
-          groups: form.groups,
+          groups: form.roleId ? [form.roleId] : [],
           allowedBuildingIds: form.allowedBuildingIds
         };
         if (form.password) data.password = form.password;
         await api.updateAdminUser(editingUser._id, data);
       } else {
-        await api.createAdminUser(form);
+        await api.createAdminUser({
+          ...form,
+          groups: form.roleId ? [form.roleId] : []
+        });
       }
       setShowForm(false);
       setEditingUser(null);
@@ -126,16 +136,11 @@ function AdminUserManagement({ onClose }) {
     }
   }
 
-  function handleGroupChange(groupId) {
-    setForm(prev => {
-      const has = prev.groups.includes(groupId);
-      return {
-        ...prev,
-        groups: has
-          ? prev.groups.filter(g => g !== groupId)
-          : [...prev.groups, groupId]
-      };
-    });
+  function handleRoleChange(roleId) {
+    setForm(prev => ({
+      ...prev,
+      roleId
+    }));
   }
 
   function handleBuildingChange(buildingId) {
@@ -150,10 +155,8 @@ function AdminUserManagement({ onClose }) {
     });
   }
 
-  const selectedGroupNames = form.groups
-    .map(id => groups.find(g => g._id === id)?.name)
-    .filter(Boolean);
-  const formHasSuperAdmin = selectedGroupNames.includes('SuperAdmin');
+  const selectedRoleName = groups.find(g => g._id === form.roleId)?.name;
+  const formHasSuperAdmin = selectedRoleName === 'SuperAdmin';
 
   const isEditingSuperAdmin = isSuperAdminUser(editingUser) || formHasSuperAdmin;
   const isEditingProtectedAdmin = isProtectedPrimaryAdmin(editingUser);
@@ -232,13 +235,14 @@ function AdminUserManagement({ onClose }) {
 
             <div className="form-group">
               <label>{t('role')}</label>
-              <div className="role-checkboxes">
+              <div className="role-options">
                 {groups.map(group => (
-                  <label key={group._id} className="role-checkbox">
+                  <label key={group._id} className={`role-option ${form.roleId === group._id ? 'selected' : ''}`}>
                     <input
-                      type="checkbox"
-                      checked={form.groups.includes(group._id)}
-                      onChange={() => handleGroupChange(group._id)}
+                      type="radio"
+                      name="admin-role"
+                      checked={form.roleId === group._id}
+                      onChange={() => handleRoleChange(group._id)}
                       disabled={isEditingProtectedAdmin}
                     />
                     <span>{group.name}</span>
@@ -258,9 +262,9 @@ function AdminUserManagement({ onClose }) {
             {!isEditingSuperAdmin && (
             <div className="form-group">
               <label>Building Access</label>
-              <div className="role-checkboxes">
+              <div className="access-options">
                 {buildings.map(building => (
-                  <label key={building._id} className="role-checkbox">
+                  <label key={building._id} className="access-option">
                     <input
                       type="checkbox"
                       checked={form.allowedBuildingIds.includes(building._id)}
