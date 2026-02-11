@@ -1,17 +1,28 @@
 import { Logger } from '@nestjs/common';
 import { hash } from 'bcrypt';
+import { Building } from 'src/buildings/building.model';
 import { BuildingsService } from 'src/buildings/buildings.service';
+import { Expense } from 'src/expenses/expense.model';
 import { ExpensesService } from 'src/expenses/expenses.service';
 import { MainGroups } from 'src/groups/constants';
 import { GroupService } from 'src/groups/group.service';
 import { PaymentsService } from 'src/payments/payments.service';
+import { Property } from 'src/properties/property.model';
 import { PropertiesService } from 'src/properties/properties.service';
 import { Loggers } from 'src/shared/constants';
 import { UsersService } from 'src/users/users.service';
 import { DatabaseMigrationService } from '../database-migration.service';
 
+const parseBoolean = (value?: string) => ['1', 'true', 'yes', 'on'].includes(String(value || '').toLowerCase());
+
 export const seedDemoRbacData = async (migrationService: DatabaseMigrationService) => {
     const logger = new Logger(Loggers.DatabaseMigration);
+
+    const shouldSeedDemoData = parseBoolean(process.env.ENABLE_DEMO_SEED);
+    if (!shouldSeedDemoData) {
+        logger.log('Skipping demo RBAC seed (ENABLE_DEMO_SEED is not enabled)');
+        return;
+    }
 
     const usersService = migrationService.resolveService<UsersService>(UsersService);
     const groupService = migrationService.resolveService<GroupService>(GroupService);
@@ -33,18 +44,24 @@ export const seedDemoRbacData = async (migrationService: DatabaseMigrationServic
         { number: 'DEMO-202', address: 'Demo District B', totalKirats: 24 },
     ];
 
-    const demoBuildings: any[] = [];
+    const demoBuildings = [];
     for (const item of demoBuildingsInput) {
         let building = await buildingsService.findOne({ number: item.number });
         if (!building) {
-            building = await buildingsService.create(item as any);
+            building = await buildingsService.create(item as Partial<Building> as Building);
         }
         demoBuildings.push(building);
     }
 
     const [buildingA, buildingB] = demoBuildings;
 
-    const upsertProperty = async (buildingId: string, unit: string, type: 'apartment' | 'store', paymentType = 'fixed', fixedRent = 0) => {
+    const upsertProperty = async (
+        buildingId: string,
+        unit: string,
+        type: 'apartment' | 'store',
+        paymentType = 'fixed',
+        fixedRent = 0,
+    ) => {
         const existing = await propertiesService.findOne({ buildingId, unit });
         if (existing) return existing;
         return propertiesService.create({
@@ -52,14 +69,15 @@ export const seedDemoRbacData = async (migrationService: DatabaseMigrationServic
             unit,
             type,
             renterName: `Tenant ${unit}`,
+            renterId: null,
             paymentType,
             fixedRent,
-        } as any);
+        } as Partial<Property> as Property);
     };
 
-    const p1 = await upsertProperty(String((buildingA as any)._id), '1', 'apartment', 'fixed', 3200);
-    const p2 = await upsertProperty(String((buildingA as any)._id), '2', 'apartment', 'fixed', 3400);
-    const p3 = await upsertProperty(String((buildingB as any)._id), 'S1', 'store', 'fixed', 6000);
+    const p1 = await upsertProperty(String(buildingA._id), '1', 'apartment', 'fixed', 3200);
+    const p2 = await upsertProperty(String(buildingA._id), '2', 'apartment', 'fixed', 3400);
+    const p3 = await upsertProperty(String(buildingB._id), 'S1', 'store', 'fixed', 6000);
 
     const nowYear = new Date().getFullYear();
     const upsertPayment = (propertyId: string, month: number, amount: number) =>
@@ -68,27 +86,34 @@ export const seedDemoRbacData = async (migrationService: DatabaseMigrationServic
             { $set: { propertyId, year: nowYear, month, amount } },
         );
 
-    await upsertPayment(String((p1 as any)._id), 1, 3200);
-    await upsertPayment(String((p1 as any)._id), 2, 3200);
-    await upsertPayment(String((p2 as any)._id), 1, 3400);
-    await upsertPayment(String((p3 as any)._id), 1, 6000);
+    await upsertPayment(String(p1._id), 1, 3200);
+    await upsertPayment(String(p1._id), 2, 3200);
+    await upsertPayment(String(p2._id), 1, 3400);
+    await upsertPayment(String(p3._id), 1, 6000);
 
     const existingExpense = await expensesService.findOne({
-        buildingId: String((buildingA as any)._id),
+        buildingId: String(buildingA._id),
         year: nowYear,
         description: 'Demo maintenance',
     });
     if (!existingExpense) {
         await expensesService.create({
-            buildingId: String((buildingA as any)._id),
+            buildingId: String(buildingA._id),
             year: nowYear,
             description: 'Demo maintenance',
             amount: 1500,
+            ownerGroupId: null,
             expenseType: 'proportional',
-        } as any);
+        } as Partial<Expense> as Expense);
     }
 
-    const demoPasswordHash = await hash('Demo@1234', 10);
+    const demoSeedPassword = process.env.DEMO_SEED_PASSWORD;
+    if (!demoSeedPassword) {
+        logger.warn('Skipping demo users creation: DEMO_SEED_PASSWORD is missing');
+        return;
+    }
+
+    const demoPasswordHash = await hash(demoSeedPassword, 10);
 
     const managerEmail = 'demo.operator@rentals.local';
     const viewerEmail = 'demo.viewer@rentals.local';

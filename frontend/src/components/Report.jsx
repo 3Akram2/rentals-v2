@@ -6,6 +6,13 @@ import { formatNumber } from '../utils/numberToArabicWords';
 
 function Report({ building, onClose, canManageExpenses = false }) {
   const { t, monthsShort, monthsFull, isRtl } = useLang();
+
+  const escapeHtml = (value) => String(value || '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
   const [year, setYear] = useState(new Date().getFullYear());
   const [fromMonth, setFromMonth] = useState(1);
   const [toMonth, setToMonth] = useState(12);
@@ -172,8 +179,8 @@ function Report({ building, onClose, canManageExpenses = false }) {
         </head>
         <body>
           <div class="print-header">
-            <h1>${t('yearlyReport')} - ${year}</h1>
-            <p>${building.number}</p>
+            <h1>${escapeHtml(t('yearlyReport'))} - ${escapeHtml(year)}</h1>
+            <p>${escapeHtml(building.number)}</p>
           </div>
           ${printContent.innerHTML}
         </body>

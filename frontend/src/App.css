@@ -42,10 +42,12 @@ header h1 {
 }
 
 .app-title-logo {
-  width: 30px;
-  height: 30px;
+  width: 34px;
+  height: 34px;
   object-fit: contain;
-  filter: invert(1);
+  border-radius: 6px;
+  background: #fff;
+  padding: 2px;
 }
 
 .lang-toggle {
@@ -3586,14 +3588,16 @@ td.no-print {
 }
 
 .role-checkbox {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: 20px 1fr;
+  align-items: start;
   gap: 10px;
   padding: 10px 12px;
   background: #f8f9fa;
   border-radius: 6px;
   cursor: pointer;
   transition: background 0.2s;
+  line-height: 1.35;
 }
 
 .role-checkbox:hover {
@@ -3604,6 +3608,7 @@ td.no-print {
   width: 18px;
   height: 18px;
   cursor: pointer;
+  margin-top: 2px;
 }
 
 .role-checkbox span {

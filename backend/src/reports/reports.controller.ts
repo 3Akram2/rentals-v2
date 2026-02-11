@@ -21,9 +21,9 @@ export class ReportsController {
     async getYearlyReport(
         @Param('buildingId') buildingId: string,
         @Param('year') year: string,
+        @CurrentUser() user: User,
         @Query('fromMonth') fromMonth?: string,
         @Query('toMonth') toMonth?: string,
-        @CurrentUser() user?: User,
     ) {
         await this.buildingAccessService.assertBuildingAccess(user, buildingId);
         return this.reportsService.getYearlyReport(

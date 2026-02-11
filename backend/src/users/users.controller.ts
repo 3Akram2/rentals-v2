@@ -22,6 +22,8 @@ import { Permissions } from 'src/groups/enums/permissions.enum';
 import { GenericFilterQuery } from 'src/shared/mongo/generic-filter-query.dto';
 import { CurrentUser } from 'src/app-auth/user.decorator';
 import { IsSuperAdminGuard } from 'src/app-auth/guards/super-admin.guard';
+import { CreateAdminUserDto } from './dto/create-admin-user.dto';
+import { UpdateAdminUserDto } from './dto/update-admin-user.dto';
 
 @ApiTags(Endpoints.AdminUsers)
 @Controller(Endpoints.AdminUsers)
@@ -36,8 +38,9 @@ export class UsersController extends AbstractController<User, UserDocument, User
 
     @Get(':id')
     @AuthPermissions(Permissions.UserRead)
-    get(@Param('id') id: string, @Query() queryParams) {
-        return super.get_(id, queryParams);
+    async get(@Param('id') id: string, @Query() queryParams) {
+        const result = await super.get_(id, queryParams);
+        return this.service.sanitizeUserResponse(result);
     }
 
     @Get()
@@ -62,21 +65,23 @@ export class UsersController extends AbstractController<User, UserDocument, User
         type: User,
     })
     @AuthPermissions(Permissions.UserRead)
-    find(@Query() queryParams, @Query() pagination: Pagination) {
-        return super.findAll_(queryParams, pagination);
+    async find(@Query() queryParams, @Query() pagination: Pagination) {
+        const result = await super.findAll_(queryParams, pagination);
+        return this.service.sanitizeUserResponse(result);
     }
 
     @Post()
     @UseGuards(IsSuperAdminGuard)
     @AuthPermissions(Permissions.UserCreate)
-    async create(@Body() data: User, @CurrentUser() user: User) {
-        data.createdBy = user._id;
-        return this.service.createUser(data);
+    async create(@Body() data: CreateAdminUserDto, @CurrentUser() user: User) {
+        const payload = { ...data, createdBy: user._id } as User;
+        const created = await this.service.createUser(payload);
+        return this.service.sanitizeUserResponse(created);
     }
 
     @Post('search')
     @AuthPermissions(Permissions.UserRead)
-    advancedSearch(@Body() filters: GenericFilterQuery) {
+    async advancedSearch(@Body() filters: GenericFilterQuery) {
         filters.equal = {
             ...filters.equal,
         };
@@ -91,7 +96,8 @@ export class UsersController extends AbstractController<User, UserDocument, User
                 select: 'name',
             },
         ];
-        return this.service.search(filters);
+        const result = await this.service.search(filters);
+        return this.service.sanitizeUserResponse(result);
     }
 
     @Post('count')
@@ -108,8 +114,9 @@ export class UsersController extends AbstractController<User, UserDocument, User
     @Patch(':id')
     @UseGuards(IsSuperAdminGuard)
     @AuthPermissions(Permissions.UserUpdate)
-    async update(@Param('id') id: string, @Body() data: User) {
-        return this.getOrThrow404(this.service.updateUser(id, data));
+    async update(@Param('id') id: string, @Body() data: UpdateAdminUserDto) {
+        const updated = await this.getOrThrow404(this.service.updateUser(id, data as User));
+        return this.service.sanitizeUserResponse(updated);
     }
 
     @UseGuards(IsSuperAdminGuard)
