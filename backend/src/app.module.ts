@@ -21,6 +21,7 @@ import { PaymentsModule } from './payments/payments.module';
 import { ExpensesModule } from './expenses/expenses.module';
 import { RentalUsersModule } from './rental-users/rental-users.module';
 import { ReportsModule } from './reports/reports.module';
+import { BuildingAiModule } from './building-ai/building-ai.module';
 
 @Global()
 @Module({
@@ -61,6 +62,7 @@ import { ReportsModule } from './reports/reports.module';
         ExpensesModule,
         RentalUsersModule,
         ReportsModule,
+        BuildingAiModule,
     ],
     controllers: [AppController],
     providers: [

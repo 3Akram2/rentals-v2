@@ -302,3 +302,18 @@ export async function getGroups() {
   const result = await handleResponseOrThrow(res);
   return result.data || result;
 }
+
+// Building AI
+export async function askBuildingAi(buildingId, question) {
+  const res = await fetch(`${API_BASE}/buildings/${buildingId}/ask-ai`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ question })
+  });
+  return handleResponseOrThrow(res);
+}
+
+export async function getAiDashboardOverview() {
+  const res = await fetch(`${API_BASE}/ai-dashboard/overview`, { headers: authHeaders(false) });
+  return handleResponseOrThrow(res);
+}

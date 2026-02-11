@@ -20,6 +20,8 @@ import UserReport from './components/UserReport';
 import PayoutReport from './components/PayoutReport';
 import AdminUserManagement from './components/AdminUserManagement';
 import ProfilePage from './components/ProfilePage';
+import BuildingAiAssistant from './components/BuildingAiAssistant';
+import AiDashboard from './components/AiDashboard';
 import * as api from './api';
 
 function App() {
@@ -31,6 +33,7 @@ function App() {
   const [properties, setProperties] = useState([]);
   const [modal, setModal] = useState({ type: null, data: null });
   const [loading, setLoading] = useState(true);
+  const [aiOpen, setAiOpen] = useState(false);
 
   const canCreateBuilding = hasPermission('building@create');
   const canUpdateBuilding = hasPermission('building@update');
@@ -59,6 +62,7 @@ function App() {
     if (view === 'buildings') {
       setSelectedBuilding(null);
       setProperties([]);
+      setAiOpen(false);
     }
   }
 
@@ -193,6 +197,8 @@ function App() {
 
       {currentView === 'profile' ? (
         <ProfilePage />
+      ) : currentView === 'aiDashboard' ? (
+        <AiDashboard />
       ) : currentView === 'adminUsers' ? (
         <AdminUserManagement onClose={() => setCurrentView('buildings')} />
       ) : currentView === 'users' ? (
@@ -226,7 +232,7 @@ function App() {
       ) : (
         <>
           <div className="back-btn">
-            <button onClick={() => { setSelectedBuilding(null); setProperties([]); }}>
+            <button onClick={() => { setSelectedBuilding(null); setProperties([]); setAiOpen(false); }}>
               {isRtl ? '→' : '←'} {t('back')}
             </button>
           </div>
@@ -277,6 +283,16 @@ function App() {
             canUpdateProperty={canUpdateProperty}
             canDeleteProperty={canDeleteProperty}
             canCreatePayment={canCreatePayment}
+          />
+
+          <button className="building-ai-fab" onClick={() => setAiOpen(true)} title="Ask AI about this building">
+            ?
+          </button>
+
+          <BuildingAiAssistant
+            building={selectedBuilding}
+            visible={aiOpen}
+            onClose={() => setAiOpen(false)}
           />
         </>
       )}
