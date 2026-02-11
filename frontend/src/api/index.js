@@ -304,11 +304,11 @@ export async function getGroups() {
 }
 
 // Building AI
-export async function askBuildingAi(buildingId, question) {
+export async function askBuildingAi(buildingId, question, history = []) {
   const res = await fetch(`${API_BASE}/buildings/${buildingId}/ask-ai`, {
     method: 'POST',
     headers: authHeaders(),
-    body: JSON.stringify({ question })
+    body: JSON.stringify({ question, history })
   });
   return handleResponseOrThrow(res);
 }

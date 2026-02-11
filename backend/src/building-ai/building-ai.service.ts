@@ -27,7 +27,12 @@ export class BuildingAiService {
         private readonly promptRepo: BuildingAiPromptRepo,
     ) {}
 
-    async askBuilding(actor: User, buildingId: string, question: string) {
+    async askBuilding(
+        actor: User,
+        buildingId: string,
+        question: string,
+        history: Array<{ role: 'user' | 'assistant'; text: string }> = [],
+    ) {
         const apiKey = process.env.GROQ_API_KEY || process.env.GROK_API_KEY;
         if (!apiKey) {
             throw new BadRequestException('GROQ_API_KEY is missing on server');
@@ -74,17 +79,29 @@ export class BuildingAiService {
                 'Keep answers concise and numeric where possible.',
             ].join('\n');
 
-        const prompt = [
+        const contextMessage = [
             basePrompt,
             '',
             '=== BUILDING CONTEXT ===',
             contextText,
             '',
-            '=== USER QUESTION ===',
-            question,
+            'Important: payment amount is the actual paid money in records for each month.',
         ].join('\n');
 
-        const answer = await this.queryGroq(prompt, apiKey);
+        const normalizedHistory = (history || [])
+            .filter((h) => h && typeof h.text === 'string' && (h.role === 'user' || h.role === 'assistant'))
+            .slice(-12)
+            .map((h) => ({ role: h.role, content: h.text }));
+
+        const answer = await this.queryGroq(
+            [
+                { role: 'system', content: 'You are a rental-building assistant. Answer only from provided building context. If data is missing, say it is unavailable in records.' },
+                { role: 'system', content: contextMessage },
+                ...normalizedHistory,
+                { role: 'user', content: question },
+            ],
+            apiKey,
+        );
 
         await this.chatRepo.create({
             actorId: actor._id,
@@ -245,7 +262,10 @@ export class BuildingAiService {
         return lines.join('\n');
     }
 
-    private async queryGroq(prompt: string, apiKey: string): Promise<string> {
+    private async queryGroq(
+        messages: Array<{ role: 'system' | 'user' | 'assistant'; content: string }>,
+        apiKey: string,
+    ): Promise<string> {
         const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
             method: 'POST',
             headers: {
@@ -254,14 +274,7 @@ export class BuildingAiService {
             },
             body: JSON.stringify({
                 model: this.model,
-                messages: [
-                    {
-                        role: 'system',
-                        content:
-                            'You are a rental-building assistant. Answer only from provided building context. If data is missing, say it is unavailable in records.',
-                    },
-                    { role: 'user', content: prompt },
-                ],
+                messages,
                 temperature: 0.1,
                 max_tokens: 700,
             }),
