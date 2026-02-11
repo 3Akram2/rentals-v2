@@ -42,12 +42,12 @@ header h1 {
 }
 
 .app-title-logo {
-  width: 34px;
-  height: 34px;
+  width: 40px;
+  height: 40px;
   object-fit: contain;
-  border-radius: 6px;
+  border-radius: 8px;
   background: #fff;
-  padding: 2px;
+  padding: 3px;
 }
 
 .lang-toggle {
@@ -3378,6 +3378,14 @@ td.no-print {
   border-color: #999;
 }
 
+.login-logo {
+  display: block;
+  width: 110px;
+  height: 110px;
+  object-fit: contain;
+  margin: 0 auto 14px;
+}
+
 .login-logo-wrap {
   position: relative;
   width: 104px;
@@ -3437,6 +3445,11 @@ td.no-print {
 @media (max-width: 480px) {
   .login-card {
     padding: 25px 20px;
+  }
+
+  .login-logo {
+    width: 90px;
+    height: 90px;
   }
 
   .login-logo-wrap {
