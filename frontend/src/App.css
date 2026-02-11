@@ -3604,11 +3604,11 @@ td.no-print {
 .role-option,
 .access-option {
   display: grid;
-  grid-template-columns: 20px 1fr;
+  grid-template-columns: 22px 1fr;
   align-items: center;
-  gap: 10px;
+  gap: 14px;
   min-height: 46px;
-  padding: 10px 12px;
+  padding: 10px 14px;
   border-radius: 10px;
   border: 1px solid #e3e8ef;
   background: #f8fafc;
