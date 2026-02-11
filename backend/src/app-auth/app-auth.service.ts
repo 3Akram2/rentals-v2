@@ -3,6 +3,7 @@ import { JwtService } from '@nestjs/jwt';
 import { UsersService } from 'src/users/users.service';
 import { ConfigService } from '@nestjs/config';
 import { Algorithm } from 'jsonwebtoken';
+import { StringValue } from 'ms';
 import { compare } from 'bcrypt';
 import { User } from 'src/users/user.model';
 import { ErrorCodes } from 'src/shared/errors/custom';
@@ -40,7 +41,7 @@ export class AppAuthService {
     async createAccessToken(user, additionalInfo?: Record<string, any>) {
         const payload = await this.createPayload(user);
         return this.jwtService.signAsync(Object.assign(payload, additionalInfo || {}), {
-            expiresIn: this.configService.get('server.authentication.jwt.signOptions.expiresIn') as string,
+            expiresIn: this.configService.get('server.authentication.jwt.signOptions.expiresIn') as StringValue | number,
         });
     }
 
