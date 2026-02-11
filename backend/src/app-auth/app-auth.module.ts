@@ -10,6 +10,7 @@ import { JWTStrategy } from './strategies/jwt.strategy';
 import { PermissionsGuard } from './guards/app-permissions.guard';
 import { IsSuperAdminGuard } from './guards/super-admin.guard';
 import { BuildingAccessService } from './building-access.service';
+import { SuperAdminAccessGuard } from './guards/super-admin-access.guard';
 
 @Global()
 @Module({
@@ -35,6 +36,7 @@ import { BuildingAccessService } from './building-access.service';
         PermissionsGuard,
         IsSuperAdminGuard,
         BuildingAccessService,
+        SuperAdminAccessGuard,
     ],
     controllers: [AppAuthController],
     exports: [AppAuthService, JwtModule, BuildingAccessService],

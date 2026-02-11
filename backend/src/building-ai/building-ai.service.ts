@@ -9,6 +9,9 @@ import { BuildingAiPromptRepo } from './building-ai-prompt.repo';
 import { UsersService } from 'src/users/users.service';
 import { CreateAiPromptDto } from './dto/create-ai-prompt.dto';
 import { UpdateAiPromptDto } from './dto/update-ai-prompt.dto';
+import { Building } from 'src/buildings/building.model';
+import { Property } from 'src/properties/property.model';
+import { Payment } from 'src/payments/payment.model';
 
 @Injectable()
 export class BuildingAiService {
@@ -38,7 +41,8 @@ export class BuildingAiService {
         const prevYear = nowYear - 1;
 
         const properties = await this.propertiesService.findAll({ buildingId }, { sort: { unit: 1 } });
-        const propertyIds = properties.map((p: any) => String(p._id));
+        const typedProperties = properties as Property[];
+        const propertyIds = typedProperties.map((p) => String(p._id));
 
         const payments = propertyIds.length
             ? await this.paymentsService.findAll(
@@ -50,16 +54,17 @@ export class BuildingAiService {
               )
             : [];
 
-        const paymentsByProperty = new Map<string, any[]>();
-        payments.forEach((payment: any) => {
+        const typedPayments = payments as Payment[];
+        const paymentsByProperty = new Map<string, Payment[]>();
+        typedPayments.forEach((payment) => {
             const key = String(payment.propertyId);
             if (!paymentsByProperty.has(key)) paymentsByProperty.set(key, []);
             paymentsByProperty.get(key)?.push(payment);
         });
 
-        const contextText = this.buildContextText(building as any, properties as any[], paymentsByProperty, nowYear, prevYear);
+        const contextText = this.buildContextText(building as Building, typedProperties, paymentsByProperty, nowYear, prevYear);
 
-        const activePrompt = await this.promptRepo.findOne({ active: true } as any);
+        const activePrompt = await this.promptRepo.findOne({ active: true });
         const basePrompt =
             activePrompt?.content ||
             [
@@ -82,14 +87,14 @@ export class BuildingAiService {
         const answer = await this.queryGroq(prompt, apiKey);
 
         await this.chatRepo.create({
-            actorId: (actor as any)._id,
+            actorId: actor._id,
             buildingId,
             question,
             answer,
             model: this.model,
             currentYear: nowYear,
             previousYear: prevYear,
-        } as any);
+        });
 
         return {
             buildingId,
@@ -99,23 +104,38 @@ export class BuildingAiService {
     }
 
     async getDashboardOverview() {
-        const [buildingsCount, unitsCount, usersCount] = await Promise.all([
+        const [buildingsCount, unitsCount, usersCount, ownersAgg] = await Promise.all([
             this.buildingsService.count({}),
             this.propertiesService.count({}),
             this.usersService.count({ deleted: { $ne: true } } as any),
+            this.buildingsService.aggregatePipeline<{ total: number }>([
+                { $unwind: { path: '$ownerGroups', preserveNullAndEmptyArrays: false } },
+                { $unwind: { path: '$ownerGroups.members', preserveNullAndEmptyArrays: false } },
+                {
+                    $project: {
+                        ownerKey: {
+                            $cond: [
+                                { $ifNull: ['$ownerGroups.members.userId', false] },
+                                { $concat: ['id:', { $toString: '$ownerGroups.members.userId' }] },
+                                {
+                                    $concat: [
+                                        'name:',
+                                        {
+                                            $trim: {
+                                                input: { $toLower: { $ifNull: ['$ownerGroups.members.name', ''] } },
+                                            },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    },
+                },
+                { $match: { ownerKey: { $nin: ['name:'] } } },
+                { $group: { _id: '$ownerKey' } },
+                { $count: 'total' },
+            ]),
         ]);
-
-        const buildings = await this.buildingsService.findAll({}, { projection: { ownerGroups: 1 } as any });
-        const ownerSet = new Set<string>();
-
-        (buildings as any[]).forEach((building) => {
-            (building.ownerGroups || []).forEach((group: any) => {
-                (group.members || []).forEach((member: any) => {
-                    if (member.userId) ownerSet.add(String(member.userId));
-                    else if (member.name) ownerSet.add(`name:${String(member.name).trim().toLowerCase()}`);
-                });
-            });
-        });
 
         const [recentChats, prompts] = await Promise.all([
             this.chatRepo.findAll(
@@ -136,7 +156,7 @@ export class BuildingAiService {
             stats: {
                 buildings: buildingsCount.total,
                 units: unitsCount.total,
-                owners: ownerSet.size,
+                owners: ownersAgg?.[0]?.total || 0,
                 loginUsers: usersCount.total,
                 chats: recentChats.length,
             },
@@ -152,15 +172,15 @@ export class BuildingAiService {
     async createPrompt(actor: User, body: CreateAiPromptDto) {
         const latest = await this.promptRepo.findOne({}, { sort: { version: -1 } });
         const nextVersion = (latest?.version || 0) + 1;
-        const hasActive = await this.promptRepo.findOne({ active: true } as any);
+        const hasActive = await this.promptRepo.findOne({ active: true });
 
         const prompt = await this.promptRepo.create({
             version: nextVersion,
             title: body.title || `Prompt v${nextVersion}`,
             content: body.content,
             active: !hasActive,
-            createdBy: (actor as any)._id,
-        } as any);
+            createdBy: actor._id,
+        });
 
         return prompt;
     }
@@ -172,21 +192,21 @@ export class BuildingAiService {
         return this.promptRepo.updateById(promptId, {
             ...(body.title ? { title: body.title } : {}),
             ...(body.content ? { content: body.content } : {}),
-        } as any);
+        });
     }
 
     async activatePrompt(promptId: string) {
         const prompt = await this.promptRepo.findById(promptId);
         if (!prompt) throw new NotFoundException('Prompt not found');
 
-        await this.promptRepo.updateMany({}, { $set: { active: false } } as any);
-        return this.promptRepo.updateById(promptId, { active: true } as any);
+        await this.promptRepo.updateMany({}, { $set: { active: false } });
+        return this.promptRepo.updateById(promptId, { active: true });
     }
 
     private buildContextText(
-        building: any,
-        properties: any[],
-        paymentsByProperty: Map<string, any[]>,
+        building: Building,
+        properties: Property[],
+        paymentsByProperty: Map<string, Payment[]>,
         nowYear: number,
         prevYear: number,
     ) {

@@ -21,16 +21,16 @@ function BuildingAiAssistant({ building, visible, onClose }) {
     const trimmed = question.trim();
     if (!trimmed || !building?._id || loading) return;
 
-    const nextUser = { role: 'user', text: trimmed };
+    const nextUser = { id: `u-${Date.now()}-${Math.random()}`, role: 'user', text: trimmed };
     setMessages((prev) => [...prev, nextUser]);
     setQuestion('');
     setLoading(true);
 
     try {
       const result = await api.askBuildingAi(building._id, trimmed);
-      setMessages((prev) => [...prev, { role: 'ai', text: result.answer || 'No response.' }]);
+      setMessages((prev) => [...prev, { id: `a-${Date.now()}-${Math.random()}`, role: 'ai', text: result.answer || 'No response.' }]);
     } catch (error) {
-      setMessages((prev) => [...prev, { role: 'ai', text: `Error: ${error.message}` }]);
+      setMessages((prev) => [...prev, { id: `e-${Date.now()}-${Math.random()}`, role: 'ai', text: `Error: ${error.message}` }]);
     } finally {
       setLoading(false);
     }
@@ -56,8 +56,8 @@ function BuildingAiAssistant({ building, visible, onClose }) {
             </div>
           )}
 
-          {messages.map((msg, idx) => (
-            <div key={idx} className={`ai-message ${msg.role}`}>
+          {messages.map((msg) => (
+            <div key={msg.id} className={`ai-message ${msg.role}`}>
               <div className="ai-message-label">{msg.role === 'user' ? 'You' : 'AI'}</div>
               <div className="ai-message-text">{msg.text}</div>
             </div>
