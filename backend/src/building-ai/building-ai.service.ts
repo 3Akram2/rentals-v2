@@ -12,7 +12,7 @@ import { UpdateAiPromptDto } from './dto/update-ai-prompt.dto';
 
 @Injectable()
 export class BuildingAiService {
-    private readonly model = process.env.GEMINI_MODEL || 'gemini-2.0-flash';
+    private readonly model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
 
     constructor(
         private readonly buildingsService: BuildingsService,
@@ -25,9 +25,9 @@ export class BuildingAiService {
     ) {}
 
     async askBuilding(actor: User, buildingId: string, question: string) {
-        const apiKey = process.env.GEMINI_API_KEY;
+        const apiKey = process.env.GROQ_API_KEY || process.env.GROK_API_KEY;
         if (!apiKey) {
-            throw new BadRequestException('GEMINI_API_KEY is missing on server');
+            throw new BadRequestException('GROQ_API_KEY is missing on server');
         }
 
         await this.buildingAccessService.assertBuildingAccess(actor, buildingId);
@@ -79,7 +79,7 @@ export class BuildingAiService {
             question,
         ].join('\n');
 
-        const answer = await this.queryGemini(prompt, apiKey);
+        const answer = await this.queryGroq(prompt, apiKey);
 
         await this.chatRepo.create({
             actorId: (actor as any)._id,
@@ -225,36 +225,36 @@ export class BuildingAiService {
         return lines.join('\n');
     }
 
-    private async queryGemini(prompt: string, apiKey: string): Promise<string> {
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${this.model}:generateContent?key=${apiKey}`,
-            {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    contents: [{ role: 'user', parts: [{ text: prompt }] }],
-                    generationConfig: {
-                        temperature: 0.1,
-                        topP: 0.9,
-                        maxOutputTokens: 700,
-                    },
-                }),
+    private async queryGroq(prompt: string, apiKey: string): Promise<string> {
+        const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Authorization: `Bearer ${apiKey}`,
             },
-        );
+            body: JSON.stringify({
+                model: this.model,
+                messages: [
+                    {
+                        role: 'system',
+                        content:
+                            'You are a rental-building assistant. Answer only from provided building context. If data is missing, say it is unavailable in records.',
+                    },
+                    { role: 'user', content: prompt },
+                ],
+                temperature: 0.1,
+                max_tokens: 700,
+            }),
+        });
 
         const payload: any = await response.json();
 
         if (!response.ok) {
-            const message = payload?.error?.message || 'Gemini request failed';
+            const message = payload?.error?.message || 'Groq request failed';
             throw new BadRequestException(message);
         }
 
-        const text =
-            payload?.candidates?.[0]?.content?.parts
-                ?.map((part: any) => part?.text)
-                .filter(Boolean)
-                .join('\n') || 'No answer generated.';
-
-        return text;
+        const text = payload?.choices?.[0]?.message?.content || 'No answer generated.';
+        return String(text).trim();
     }
 }
