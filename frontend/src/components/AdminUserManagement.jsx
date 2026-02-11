@@ -6,6 +6,7 @@ function AdminUserManagement({ onClose }) {
   const { t } = useLang();
   const [adminUsers, setAdminUsers] = useState([]);
   const [groups, setGroups] = useState([]);
+  const [buildings, setBuildings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editingUser, setEditingUser] = useState(null);
@@ -16,7 +17,8 @@ function AdminUserManagement({ onClose }) {
     email: '',
     username: '',
     password: '',
-    groups: []
+    groups: [],
+    allowedBuildingIds: []
   });
 
   useEffect(() => {
@@ -26,12 +28,14 @@ function AdminUserManagement({ onClose }) {
   async function loadData() {
     setLoading(true);
     try {
-      const [usersData, groupsData] = await Promise.all([
+      const [usersData, groupsData, buildingsData] = await Promise.all([
         api.getAdminUsers(),
-        api.getGroups()
+        api.getGroups(),
+        api.getBuildings()
       ]);
       setAdminUsers(Array.isArray(usersData) ? usersData : []);
       setGroups(Array.isArray(groupsData) ? groupsData : []);
+      setBuildings(Array.isArray(buildingsData) ? buildingsData : []);
     } catch {
       setError('Failed to load data');
     }
@@ -47,7 +51,7 @@ function AdminUserManagement({ onClose }) {
 
   function openAddForm() {
     setEditingUser(null);
-    setForm({ name: '', email: '', username: '', password: '', groups: [] });
+    setForm({ name: '', email: '', username: '', password: '', groups: [], allowedBuildingIds: [] });
     setShowForm(true);
     setError('');
   }
@@ -59,7 +63,8 @@ function AdminUserManagement({ onClose }) {
       email: user.email || '',
       username: user.username || '',
       password: '',
-      groups: (user.groups || []).map(g => typeof g === 'string' ? g : g._id)
+      groups: (user.groups || []).map(g => typeof g === 'string' ? g : g._id),
+      allowedBuildingIds: (user.allowedBuildingIds || []).map(b => typeof b === 'string' ? b : b._id)
     });
     setShowForm(true);
     setError('');
@@ -80,7 +85,8 @@ function AdminUserManagement({ onClose }) {
         const data = {
           name: form.name,
           email: form.email,
-          groups: form.groups
+          groups: form.groups,
+          allowedBuildingIds: form.allowedBuildingIds
         };
         if (form.password) data.password = form.password;
         await api.updateAdminUser(editingUser._id, data);
@@ -113,6 +119,18 @@ function AdminUserManagement({ onClose }) {
         groups: has
           ? prev.groups.filter(g => g !== groupId)
           : [...prev.groups, groupId]
+      };
+    });
+  }
+
+  function handleBuildingChange(buildingId) {
+    setForm(prev => {
+      const has = prev.allowedBuildingIds.includes(buildingId);
+      return {
+        ...prev,
+        allowedBuildingIds: has
+          ? prev.allowedBuildingIds.filter(id => id !== buildingId)
+          : [...prev.allowedBuildingIds, buildingId]
       };
     });
   }
@@ -208,6 +226,25 @@ function AdminUserManagement({ onClose }) {
               )}
             </div>
 
+            <div className="form-group">
+              <label>Building Access</label>
+              <div className="role-checkboxes">
+                {buildings.map(building => (
+                  <label key={building._id} className="role-checkbox">
+                    <input
+                      type="checkbox"
+                      checked={form.allowedBuildingIds.includes(building._id)}
+                      onChange={() => handleBuildingChange(building._id)}
+                    />
+                    <span>{building.number}{building.address ? ` - ${building.address}` : ''}</span>
+                  </label>
+                ))}
+              </div>
+              {buildings.length === 0 && (
+                <p className="no-data" style={{ padding: '10px 0' }}>No buildings available</p>
+              )}
+            </div>
+
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">
                 {editingUser ? t('update') : t('create')}
@@ -251,6 +288,7 @@ function AdminUserManagement({ onClose }) {
               </div>
               <div className="user-notes">
                 @{user.username}
+                {user.allowedBuildingIds?.length ? ` • Buildings: ${user.allowedBuildingIds.map(b => typeof b === 'string' ? b : b.number).join(', ')}` : ' • Buildings: none'}
               </div>
             </div>
           ))

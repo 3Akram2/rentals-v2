@@ -1,20 +1,27 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { login as apiLogin, getProfile } from '../api';
+import { createContext, useContext, useState, useEffect, useMemo } from 'react';
+import { login as apiLogin, getProfile, getMyPermissions } from '../api';
 
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
+  const [permissions, setPermissions] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  async function loadSessionData() {
+    const [profile, perms] = await Promise.all([getProfile(), getMyPermissions()]);
+    setUser(profile);
+    setPermissions(perms || []);
+  }
 
   useEffect(() => {
     const token = localStorage.getItem('token');
     if (token) {
-      getProfile()
-        .then(profile => setUser(profile))
+      loadSessionData()
         .catch(() => {
           localStorage.removeItem('token');
           setUser(null);
+          setPermissions([]);
         })
         .finally(() => setLoading(false));
     } else {
@@ -27,8 +34,7 @@ export function AuthProvider({ children }) {
       const data = await apiLogin(username, password);
       if (data.access_token) {
         localStorage.setItem('token', data.access_token);
-        const profile = await getProfile();
-        setUser(profile);
+        await loadSessionData();
         return { success: true };
       }
       return { success: false, error: data.message || 'Login failed' };
@@ -40,16 +46,26 @@ export function AuthProvider({ children }) {
   function logout() {
     localStorage.removeItem('token');
     setUser(null);
+    setPermissions([]);
   }
 
   function refreshUser() {
-    return getProfile()
-      .then(profile => setUser(profile))
-      .catch(() => {});
+    return loadSessionData().catch(() => {});
   }
 
+  const value = useMemo(() => ({
+    user,
+    permissions,
+    login,
+    logout,
+    loading,
+    refreshUser,
+    hasPermission: (permission) => permissions.includes(permission),
+    hasAnyPermission: (required = []) => required.some((p) => permissions.includes(p)),
+  }), [user, permissions, loading]);
+
   return (
-    <AuthContext.Provider value={{ user, login, logout, loading, refreshUser }}>
+    <AuthContext.Provider value={value}>
       {children}
     </AuthContext.Provider>
   );

@@ -2,11 +2,23 @@ import { useState } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { convertArabicNumerals, formatNumber } from '../utils/numberToArabicWords';
 
-function PropertyList({ properties, onAdd, onEdit, onDelete, onPayment, onHistory, onReceipt, onBlankReceipt }) {
+function PropertyList({
+  properties,
+  onAdd,
+  onEdit,
+  onDelete,
+  onPayment,
+  onHistory,
+  onReceipt,
+  onBlankReceipt,
+  canCreateProperty,
+  canUpdateProperty,
+  canDeleteProperty,
+  canCreatePayment,
+}) {
   const { t } = useLang();
   const [search, setSearch] = useState('');
 
-  // Filter properties by search term (unit or renter name)
   const filteredProperties = properties.filter(property => {
     if (!search.trim()) return true;
     const searchLower = search.toLowerCase().trim();
@@ -15,19 +27,15 @@ function PropertyList({ properties, onAdd, onEdit, onDelete, onPayment, onHistor
     return unitMatch || renterMatch;
   });
 
-  // Sort: apartments first, then stores, each sorted by unit number
   const sortedProperties = [...filteredProperties].sort((a, b) => {
-    // First sort by type (apartments before stores)
     if (a.type !== b.type) {
       return a.type === 'apartment' ? -1 : 1;
     }
-    // Then sort by unit number (numeric comparison, handling Arabic numerals)
     const unitA = parseInt(convertArabicNumerals(a.unit)) || 0;
     const unitB = parseInt(convertArabicNumerals(b.unit)) || 0;
     if (unitA !== unitB) {
       return unitA - unitB;
     }
-    // If numbers are equal, sort alphabetically
     return a.unit.localeCompare(b.unit);
   });
 
@@ -35,9 +43,11 @@ function PropertyList({ properties, onAdd, onEdit, onDelete, onPayment, onHistor
     <div>
       <div className="section-header">
         <h2>{t('properties')}</h2>
-        <button className="btn btn-primary" onClick={onAdd}>
-          {t('addProperty')}
-        </button>
+        {canCreateProperty && (
+          <button className="btn btn-primary" onClick={onAdd}>
+            {t('addProperty')}
+          </button>
+        )}
       </div>
 
       {properties.length > 0 && (
@@ -84,7 +94,7 @@ function PropertyList({ properties, onAdd, onEdit, onDelete, onPayment, onHistor
                 </div>
               </div>
               <div className="card-actions">
-                {property.paymentType !== 'blocked' && (
+                {canCreatePayment && property.paymentType !== 'blocked' && (
                   <button className="btn btn-primary btn-small" onClick={() => onPayment(property)}>
                     {t('pay')}
                   </button>
@@ -98,12 +108,16 @@ function PropertyList({ properties, onAdd, onEdit, onDelete, onPayment, onHistor
                 <button className="btn btn-secondary btn-small" onClick={() => onBlankReceipt(property)}>
                   {t('blankReceipt')}
                 </button>
-                <button className="btn btn-secondary btn-small" onClick={() => onEdit(property)}>
-                  {t('edit')}
-                </button>
-                <button className="btn btn-danger btn-small" onClick={() => onDelete(property._id)}>
-                  {t('delete')}
-                </button>
+                {canUpdateProperty && (
+                  <button className="btn btn-secondary btn-small" onClick={() => onEdit(property)}>
+                    {t('edit')}
+                  </button>
+                )}
+                {canDeleteProperty && (
+                  <button className="btn btn-danger btn-small" onClick={() => onDelete(property._id)}>
+                    {t('delete')}
+                  </button>
+                )}
               </div>
             </div>
           ))}

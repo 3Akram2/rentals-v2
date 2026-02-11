@@ -61,4 +61,13 @@ export class GroupService extends AbstractMongooseService<Group, GroupDocument, 
 
         return groups.length > 0;
     }
+
+    async isSuperAdminGroup(groupsIds: string[] = []) {
+        if (!groupsIds?.length) return false;
+        const group = await this.findOne({
+            _id: { $in: groupsIds },
+            name: MainGroups.SuperAdmin,
+        });
+        return !!group;
+    }
 }

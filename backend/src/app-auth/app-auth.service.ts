@@ -40,7 +40,8 @@ export class AppAuthService {
     async createAccessToken(user, additionalInfo?: Record<string, any>) {
         const payload = await this.createPayload(user);
         return this.jwtService.signAsync(Object.assign(payload, additionalInfo || {}), {
-            expiresIn: this.configService.get<string>('server.authentication.jwt.signOptions.expiresIn'),
+            // jsonwebtoken types expect a constrained StringValue; ConfigService returns a generic string
+            expiresIn: this.configService.get('server.authentication.jwt.signOptions.expiresIn') as any,
         });
     }
 
@@ -205,6 +206,10 @@ export class AppAuthService {
                 {
                     path: 'userGroupsIds',
                     select: 'name',
+                },
+                {
+                    path: 'allowedBuildingIds',
+                    select: 'number address',
                 },
             ],
         });

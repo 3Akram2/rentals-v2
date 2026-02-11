@@ -24,13 +24,25 @@ import * as api from './api';
 
 function App() {
   const { t, lang, toggleLang, isRtl } = useLang();
-  const { user, loading: authLoading } = useAuth();
+  const { user, loading: authLoading, hasPermission } = useAuth();
   const [currentView, setCurrentView] = useState('buildings');
   const [buildings, setBuildings] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [properties, setProperties] = useState([]);
   const [modal, setModal] = useState({ type: null, data: null });
   const [loading, setLoading] = useState(true);
+
+  const canCreateBuilding = hasPermission('building@create');
+  const canUpdateBuilding = hasPermission('building@update');
+  const canDeleteBuilding = hasPermission('building@delete');
+  const canReadReport = hasPermission('report@read');
+  const canManageOwnership = hasPermission('building@update');
+
+  const canCreateProperty = hasPermission('property@create');
+  const canUpdateProperty = hasPermission('property@update');
+  const canDeleteProperty = hasPermission('property@delete');
+  const canCreatePayment = hasPermission('payment@create');
+  const canUpdatePayment = hasPermission('payment@update');
 
   useEffect(() => {
     if (user) loadBuildings();
@@ -88,6 +100,9 @@ function App() {
   }
 
   async function handleSaveBuilding(data) {
+    if (modal.data && !canUpdateBuilding) return;
+    if (!modal.data && !canCreateBuilding) return;
+
     if (modal.data) {
       await api.updateBuilding(modal.data._id, data);
     } else {
@@ -98,6 +113,7 @@ function App() {
   }
 
   async function handleDeleteBuilding(id) {
+    if (!canDeleteBuilding) return;
     if (confirm(t('deleteBuilding'))) {
       await api.deleteBuilding(id);
       if (selectedBuilding?._id === id) {
@@ -109,6 +125,9 @@ function App() {
   }
 
   async function handleSaveProperty(data) {
+    if (modal.data && !canUpdateProperty) return;
+    if (!modal.data && !canCreateProperty) return;
+
     let result;
     if (modal.data) {
       result = await api.updateProperty(modal.data._id, data);
@@ -126,6 +145,7 @@ function App() {
   }
 
   async function handleDeleteProperty(id) {
+    if (!canDeleteProperty) return;
     if (confirm(t('deleteProperty'))) {
       await api.deleteProperty(id);
       loadProperties(selectedBuilding._id);
@@ -133,11 +153,13 @@ function App() {
   }
 
   async function handleSavePayment(data) {
+    if (!canCreatePayment) return;
     await api.createPayment({ ...data, propertyId: modal.data._id });
     closeModal();
   }
 
   async function handleSaveBulkPayments(payments) {
+    if (!canCreatePayment) return;
     for (const payment of payments) {
       await api.createPayment({ ...payment, propertyId: modal.data._id });
     }
@@ -145,11 +167,13 @@ function App() {
   }
 
   async function handleUpdatePayment(paymentId, data) {
+    if (!canUpdatePayment) return;
     await api.updatePayment(paymentId, data);
     closeModal();
   }
 
   async function handleSaveOwnership(data) {
+    if (!canManageOwnership) return;
     await api.updateBuilding(modal.data._id, data);
     loadBuildings();
     closeModal();
@@ -161,7 +185,10 @@ function App() {
 
       <div className="app">
         <header>
-          <h1>{t('appTitle')}</h1>
+          <h1 className="app-title-with-logo">
+            <img src="/logo-traced.svg" alt="Rentals logo" className="app-title-logo" />
+            <span>{t('appTitle')}</span>
+          </h1>
         </header>
 
       {currentView === 'profile' ? (
@@ -190,6 +217,11 @@ function App() {
           onReport={(b) => openModal('report', b)}
           onOwnership={(b) => openModal('ownership', b)}
           onDivision={(b) => openModal('division', b)}
+          canCreateBuilding={canCreateBuilding}
+          canUpdateBuilding={canUpdateBuilding}
+          canDeleteBuilding={canDeleteBuilding}
+          canReadReport={canReadReport}
+          canManageOwnership={canManageOwnership}
         />
       ) : (
         <>
@@ -205,15 +237,21 @@ function App() {
                 {selectedBuilding.address && <div className="card-subtitle">{selectedBuilding.address}</div>}
               </div>
               <div className="card-actions">
-                <button className="btn btn-primary btn-small" onClick={() => openModal('report', selectedBuilding)}>
-                  {t('report')}
-                </button>
-                <button className="btn btn-primary btn-small" onClick={() => openModal('division', selectedBuilding)}>
-                  {t('divisionReport')}
-                </button>
-                <button className="btn btn-secondary btn-small" onClick={() => openModal('building', selectedBuilding)}>
-                  {t('edit')}
-                </button>
+                {canReadReport && (
+                  <button className="btn btn-primary btn-small" onClick={() => openModal('report', selectedBuilding)}>
+                    {t('report')}
+                  </button>
+                )}
+                {canReadReport && (
+                  <button className="btn btn-primary btn-small" onClick={() => openModal('division', selectedBuilding)}>
+                    {t('divisionReport')}
+                  </button>
+                )}
+                {canUpdateBuilding && (
+                  <button className="btn btn-secondary btn-small" onClick={() => openModal('building', selectedBuilding)}>
+                    {t('edit')}
+                  </button>
+                )}
               </div>
             </div>
             <div className="stats">
@@ -235,6 +273,10 @@ function App() {
             onHistory={(p) => openModal('history', p)}
             onReceipt={(p) => openModal('receipt', p)}
             onBlankReceipt={(p) => openModal('blankReceipt', p)}
+            canCreateProperty={canCreateProperty}
+            canUpdateProperty={canUpdateProperty}
+            canDeleteProperty={canDeleteProperty}
+            canCreatePayment={canCreatePayment}
           />
         </>
       )}
@@ -312,6 +354,7 @@ function App() {
             <Report
               building={modal.data}
               onClose={closeModal}
+              canManageExpenses={hasPermission('expense@create') || hasPermission('expense@delete')}
             />
           </div>
         </div>

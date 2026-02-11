@@ -35,6 +35,19 @@ header h1 {
   font-size: 1.5rem;
 }
 
+.app-title-with-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.app-title-logo {
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  filter: invert(1);
+}
+
 .lang-toggle {
   background: rgba(255, 255, 255, 0.2);
   color: white;
@@ -3363,12 +3376,44 @@ td.no-print {
   border-color: #999;
 }
 
-.login-logo {
-  display: block;
+.login-logo-wrap {
+  position: relative;
+  width: 104px;
+  height: 84px;
   margin: 0 auto 15px;
-  width: 80px;
-  height: 80px;
-  object-fit: contain;
+}
+
+.login-logo-svg {
+  width: 104px;
+  height: 84px;
+  display: block;
+  transform-origin: center bottom;
+  animation: logo-bounce 2.2s ease-in-out infinite;
+  filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.12));
+}
+
+.login-logo-wrap .pin-bob {
+  transform-origin: center;
+  animation: pin-bounce 1.2s ease-in-out infinite;
+}
+
+.login-logo-wrap:hover .login-logo-svg,
+.login-logo-wrap:hover .pin-bob {
+  animation-play-state: paused;
+}
+
+@keyframes logo-bounce {
+  0%, 100% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-4px) scale(1.02); }
+  55% { transform: translateY(0) scale(0.995); }
+  70% { transform: translateY(-2px) scale(1.005); }
+}
+
+@keyframes pin-bounce {
+  0%, 100% { transform: translateY(0); }
+  30% { transform: translateY(-8px); }
+  55% { transform: translateY(0); }
+  70% { transform: translateY(-3px); }
 }
 
 .login-title {
@@ -3392,8 +3437,13 @@ td.no-print {
     padding: 25px 20px;
   }
 
-  .login-logo {
-    width: 64px;
+  .login-logo-wrap {
+    width: 82px;
+    height: 64px;
+  }
+
+  .login-logo-svg {
+    width: 82px;
     height: 64px;
   }
 
