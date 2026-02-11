@@ -1,103 +1,175 @@
 # Rentals V2
 
-Full-stack rental property management system with bilingual support (English/Arabic).
+Production-ready rental property management system (EN/AR) with Dockerized frontend/backend and cloud MongoDB support.
+
+---
 
 ## Tech Stack
 
-- **Backend:** NestJS, MongoDB (Mongoose), JWT Authentication, Role-based Permissions
-- **Frontend:** React (Vite), Bilingual EN/AR with RTL support
+- **Backend:** NestJS, JWT auth, role/permissions, Mongoose
+- **Frontend:** React + Vite, bilingual (English/Arabic), RTL support
+- **Infra:** Docker Compose, Caddy reverse proxy, HTTPS
+- **Database:** MongoDB (Atlas/cloud preferred in prod; local container optional)
 
-## Features
+---
 
-- Building and property management (apartments & stores)
+## Core Features
+
+- Building and property management (apartments/stores)
 - Payment tracking with monthly records
 - Receipt generation (Arabic legal format)
 - Ownership division by kirats with group/member breakdown
-- Expense tracking per building per year
-- Yearly financial reports with net income calculation
-- Payout reports per owner
-- User management (rental tenants linked to properties/buildings)
-- Admin user management with role-based access (SuperAdmin, Admin, Viewer)
-- Profile page with photo upload and password change
-- Login with logo and language toggle
+- Expense tracking per building/year
+- Yearly financial reports with net income calculations
+- Owner payout reporting
+- Tenant/user management linked to buildings/properties
+- Admin user management with RBAC
+- Profile page (photo upload + password update)
+- Login page with logo animation and language toggle
+
+---
 
 ## Project Structure
 
-```
+```txt
 rentals-v2/
-├── backend/          # NestJS API server
+├── backend/
 │   ├── src/
-│   │   ├── app-auth/         # JWT auth, guards, permissions
-│   │   ├── buildings/        # Building CRUD
-│   │   ├── properties/       # Property CRUD
-│   │   ├── payments/         # Payment CRUD
-│   │   ├── expenses/         # Expense CRUD
-│   │   ├── reports/          # Yearly reports
-│   │   ├── users/            # Admin user accounts
-│   │   ├── rental-users/     # Tenant/owner records
-│   │   ├── groups/           # Role groups & permissions
-│   │   └── users-group/      # User grouping
+│   │   ├── app-auth/
+│   │   ├── buildings/
+│   │   ├── properties/
+│   │   ├── payments/
+│   │   ├── expenses/
+│   │   ├── reports/
+│   │   ├── users/
+│   │   ├── rental-users/
+│   │   ├── groups/
+│   │   └── users-group/
 │   └── .env-example
-├── frontend/         # React SPA
+├── frontend/
 │   ├── src/
-│   │   ├── components/       # All UI components
-│   │   ├── context/          # Auth & Language contexts
-│   │   ├── api/              # API client
-│   │   └── i18n/             # EN/AR translations
 │   └── public/
-└── docker-compose.yaml       # Local MongoDB + Mongo Express
+├── deploy/
+│   └── Caddyfile
+├── docker-compose.yaml         # local/dev stack
+└── docker-compose.prod.yml     # production stack
 ```
 
-## Getting Started
+---
+
+## Local Development
 
 ### Prerequisites
 
 - Node.js 18+
-- Docker & Docker Compose (for local MongoDB)
-- MongoDB (local via Docker or remote Atlas connection)
+- Docker + Docker Compose plugin
 
-### 1. Backend
+### Backend
 
 ```bash
 cd backend
-cp .env-example .env    # Edit with your DB credentials
+cp .env-example .env
 npm install
-npm run dev             # Starts on port 4001
+npm run dev
 ```
 
-On first run, the migration seeds:
-- **SuperAdmin**, **Admin**, and **Viewer** role groups
-- Default admin account: `admin@rentals.local` / `admin123`
-
-### 2. Frontend
+### Frontend
 
 ```bash
 cd frontend
 npm install
-npm run dev             # Starts on port 4002
+npm run dev
 ```
 
-### 3. Local MongoDB (optional)
+### Optional Local MongoDB
 
 ```bash
-docker-compose up -d    # MongoDB on 27018, Mongo Express on 8082
+docker compose -f docker-compose.yaml up -d
 ```
 
-## Environment Variables
+---
+
+## Production Deployment
+
+> Current production topology uses a dedicated edge reverse-proxy service and separate app services.
+
+### Run app containers
+
+```bash
+cd /home/omar/projects/rentals-v2
+docker compose -f docker-compose.prod.yml up -d --build
+```
+
+### Run reverse proxy (edge)
+
+```bash
+cd /home/omar/projects/reverse-proxy
+docker compose up -d
+```
+
+### Verify
+
+```bash
+docker ps --format 'table {{.Names}}\t{{.Status}}\t{{.Ports}}'
+```
+
+---
+
+## Environment Variables (Backend)
 
 | Variable | Description | Example |
-|----------|-------------|---------|
-| `NODE_ENV` | Environment | `development` |
-| `DB_URL` | MongoDB connection URI | `mongodb://admin:admin@localhost:27017/` |
+|---|---|---|
+| `NODE_ENV` | Environment | `production` |
+| `DB_URL` | MongoDB connection URI | `mongodb+srv://...` |
 | `DB_NAME` | Database name | `rentals` |
-| `DB_USER` | DB username (if not in URI) | `admin` |
-| `DB_PASSWORD` | DB password (if not in URI) | `admin` |
-| `JWT_SECRET` | Secret for JWT signing | `your-secret-here` |
+| `DB_USER` | DB username (optional) | `admin` |
+| `DB_PASSWORD` | DB password (optional) | `***` |
+| `JWT_SECRET` | JWT signing secret | `***` |
 
-## Roles & Permissions
+---
+
+## Roles
 
 | Role | Access |
-|------|--------|
-| **SuperAdmin** | Full access to all features |
-| **Admin** | Full access to all features |
-| **Viewer** | Read-only access to buildings, properties, payments, expenses, reports, and users |
+|---|---|
+| `SuperAdmin` | Full system access |
+| `Admin` | Full operational access |
+| `Viewer` | Read-only access |
+
+---
+
+## CI/CD: GitHub Actions Auto Deploy (Password/SSH)
+
+A deployment workflow is included at:
+
+```txt
+.github/workflows/deploy-rentals.yml
+```
+
+### What it does
+
+On push to your deployment branch (default: `main`) or manual trigger:
+
+1. Connects to your server via SSH
+2. Enters rentals project directory
+3. Pulls latest code from the same branch
+4. Rebuilds and restarts Docker services
+
+### Required GitHub Secrets
+
+Add these in **GitHub → Repo → Settings → Secrets and variables → Actions**:
+
+- `RENTALS_DEPLOY_HOST` → your server IP / hostname (e.g. `5.189.163.21`)
+- `RENTALS_DEPLOY_PORT` → SSH port (usually `22`)
+- `RENTALS_DEPLOY_USER` → SSH username (e.g. `omar`)
+- `RENTALS_DEPLOY_PASSWORD` → SSH password
+- `RENTALS_DEPLOY_PATH` → absolute path to repo on server (e.g. `/home/omar/projects/rentals-v2`)
+
+> Security note: password auth works, but SSH key auth is strongly recommended long-term.
+
+---
+
+## Notes
+
+- Database container may exist in compose for compatibility, while backend can use cloud MongoDB in production.
+- Keep `docker-compose.prod.yml` and edge proxy config aligned when changing ports/routes.
