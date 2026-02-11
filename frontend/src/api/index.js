@@ -302,3 +302,49 @@ export async function getGroups() {
   const result = await handleResponseOrThrow(res);
   return result.data || result;
 }
+
+// Building AI
+export async function askBuildingAi(buildingId, question) {
+  const res = await fetch(`${API_BASE}/buildings/${buildingId}/ask-ai`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify({ question })
+  });
+  return handleResponseOrThrow(res);
+}
+
+export async function getAiDashboardOverview() {
+  const res = await fetch(`${API_BASE}/ai-dashboard/overview`, { headers: authHeaders(false) });
+  return handleResponseOrThrow(res);
+}
+
+export async function getAiPrompts() {
+  const res = await fetch(`${API_BASE}/ai-dashboard/prompts`, { headers: authHeaders(false) });
+  return handleResponseOrThrow(res);
+}
+
+export async function createAiPrompt(data) {
+  const res = await fetch(`${API_BASE}/ai-dashboard/prompts`, {
+    method: 'POST',
+    headers: authHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponseOrThrow(res);
+}
+
+export async function updateAiPrompt(id, data) {
+  const res = await fetch(`${API_BASE}/ai-dashboard/prompts/${id}`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponseOrThrow(res);
+}
+
+export async function activateAiPrompt(id) {
+  const res = await fetch(`${API_BASE}/ai-dashboard/prompts/${id}/activate`, {
+    method: 'POST',
+    headers: authHeaders(false)
+  });
+  return handleResponseOrThrow(res);
+}

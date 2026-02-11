@@ -7,11 +7,14 @@ function Sidebar({ onNavigate, currentView }) {
   const { user, logout, hasPermission } = useAuth();
   const [expanded, setExpanded] = useState(false);
 
+  const isSuperAdmin = (user?.groups || []).some((g) => (typeof g === 'string' ? g : g?.name) === 'SuperAdmin');
+
   const menuItems = [
     { id: 'buildings', icon: '🏢', label: t('buildings'), visible: hasPermission('building@read') },
     { id: 'users', icon: '👥', label: t('users'), visible: hasPermission('rental-user@read') },
     { id: 'payout', icon: '💰', label: t('payoutReport'), visible: hasPermission('report@read') },
     { id: 'adminUsers', icon: '🔐', label: t('adminUsers'), visible: hasPermission('user@read') },
+    { id: 'aiDashboard', icon: '🤖', label: 'AI Dashboard', visible: isSuperAdmin },
   ].filter(item => item.visible);
 
   // Close sidebar on escape key
