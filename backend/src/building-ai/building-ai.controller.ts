@@ -20,7 +20,7 @@ export class BuildingAiController {
         @Param('buildingId') buildingId: string,
         @Body() body: AskBuildingDto,
     ) {
-        return this.buildingAiService.askBuilding(actor, buildingId, body.question);
+        return this.buildingAiService.askBuilding(actor, buildingId, body.question, body.history || []);
     }
 
     @Get('ai-dashboard/overview')
