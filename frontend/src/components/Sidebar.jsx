@@ -4,15 +4,15 @@ import { useAuth } from '../context/AuthContext';
 
 function Sidebar({ onNavigate, currentView }) {
   const { t, lang, toggleLang, isRtl } = useLang();
-  const { user, logout } = useAuth();
+  const { user, logout, hasPermission } = useAuth();
   const [expanded, setExpanded] = useState(false);
 
   const menuItems = [
-    { id: 'buildings', icon: '🏢', label: t('buildings') },
-    { id: 'users', icon: '👥', label: t('users') },
-    { id: 'payout', icon: '💰', label: t('payoutReport') },
-    { id: 'adminUsers', icon: '🔐', label: t('adminUsers') },
-  ];
+    { id: 'buildings', icon: '🏢', label: t('buildings'), visible: hasPermission('building@read') },
+    { id: 'users', icon: '👥', label: t('users'), visible: hasPermission('rental-user@read') },
+    { id: 'payout', icon: '💰', label: t('payoutReport'), visible: hasPermission('report@read') },
+    { id: 'adminUsers', icon: '🔐', label: t('adminUsers'), visible: hasPermission('user@read') },
+  ].filter(item => item.visible);
 
   // Close sidebar on escape key
   useEffect(() => {

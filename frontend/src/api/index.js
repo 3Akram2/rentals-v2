@@ -53,6 +53,14 @@ export async function getProfile() {
   return res.json();
 }
 
+export async function getMyPermissions() {
+  const res = await fetch(`${API_BASE}/authentication/permissions`, {
+    headers: authHeaders(false)
+  });
+  const data = await handleResponseOrThrow(res);
+  return data.permissions || [];
+}
+
 // Buildings
 export async function getBuildings() {
   const res = await fetch(`${API_BASE}/buildings`, { headers: authHeaders(false) });
@@ -241,7 +249,7 @@ export async function getUserReport(userId, year) {
 
 // Admin Users (auth accounts)
 export async function getAdminUsers() {
-  const res = await fetch(`${API_BASE}/admin-users?$getAll=true&$populate=groups`, { headers: authHeaders(false) });
+  const res = await fetch(`${API_BASE}/admin-users?$getAll=true&$populate=groups,allowedBuildingIds`, { headers: authHeaders(false) });
   const result = await handleResponseOrThrow(res);
   const all = result.data || result;
   // Filter to only auth accounts (have username and email)

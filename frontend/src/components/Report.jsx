@@ -4,7 +4,7 @@ import { getYearlyReport, createExpense, deleteExpense } from '../api';
 import NumberInput from './NumberInput';
 import { formatNumber } from '../utils/numberToArabicWords';
 
-function Report({ building, onClose }) {
+function Report({ building, onClose, canManageExpenses = false }) {
   const { t, monthsShort, monthsFull, isRtl } = useLang();
   const [year, setYear] = useState(new Date().getFullYear());
   const [fromMonth, setFromMonth] = useState(1);
@@ -332,88 +332,90 @@ function Report({ building, onClose }) {
           </div>
 
           {/* Expense form - not included in print */}
-          <div className="expense-form-section">
-            <h4>{t('addExpense')}</h4>
-            <form onSubmit={handleAddExpense} className="expense-form-grid">
-              <div className="expense-form-row">
-                <input
-                  type="text"
-                  placeholder={t('description')}
-                  value={newExpense.description}
-                  onChange={e => setNewExpense({ ...newExpense, description: e.target.value })}
-                />
-                <NumberInput
-                  placeholder={t('amount')}
-                  value={newExpense.amount}
-                  onChange={e => setNewExpense({ ...newExpense, amount: e.target.value })}
-                />
-              </div>
-              <div className="expense-form-row">
-                <select
-                  value={newExpense.expenseType}
-                  onChange={e => setNewExpense({ ...newExpense, expenseType: e.target.value, ownerGroupId: '' })}
-                  className="expense-type-select"
-                >
-                  <option value="proportional">{t('proportional')} ({t('allOwners')})</option>
-                  <option value="equal">{t('equal')}</option>
-                </select>
-                {newExpense.expenseType === 'equal' && (
+          {canManageExpenses && (
+            <div className="expense-form-section">
+              <h4>{t('addExpense')}</h4>
+              <form onSubmit={handleAddExpense} className="expense-form-grid">
+                <div className="expense-form-row">
+                  <input
+                    type="text"
+                    placeholder={t('description')}
+                    value={newExpense.description}
+                    onChange={e => setNewExpense({ ...newExpense, description: e.target.value })}
+                  />
+                  <NumberInput
+                    placeholder={t('amount')}
+                    value={newExpense.amount}
+                    onChange={e => setNewExpense({ ...newExpense, amount: e.target.value })}
+                  />
+                </div>
+                <div className="expense-form-row">
                   <select
-                    value={newExpense.ownerGroupId}
-                    onChange={e => setNewExpense({ ...newExpense, ownerGroupId: e.target.value })}
-                    className="expense-group-select"
+                    value={newExpense.expenseType}
+                    onChange={e => setNewExpense({ ...newExpense, expenseType: e.target.value, ownerGroupId: '' })}
+                    className="expense-type-select"
                   >
-                    <option value="">{t('allOwners')}</option>
-                    {(building.ownerGroups || []).map(group => (
-                      <option key={group._id} value={group._id}>{group.name}</option>
-                    ))}
+                    <option value="proportional">{t('proportional')} ({t('allOwners')})</option>
+                    <option value="equal">{t('equal')}</option>
                   </select>
-                )}
-                <button type="submit" className="btn btn-primary">{t('add')}</button>
-              </div>
-            </form>
+                  {newExpense.expenseType === 'equal' && (
+                    <select
+                      value={newExpense.ownerGroupId}
+                      onChange={e => setNewExpense({ ...newExpense, ownerGroupId: e.target.value })}
+                      className="expense-group-select"
+                    >
+                      <option value="">{t('allOwners')}</option>
+                      {(building.ownerGroups || []).map(group => (
+                        <option key={group._id} value={group._id}>{group.name}</option>
+                      ))}
+                    </select>
+                  )}
+                  <button type="submit" className="btn btn-primary">{t('add')}</button>
+                </div>
+              </form>
 
-            {report.expenses.length > 0 && (
-              <table className="expense-table" style={{ marginTop: 15 }}>
-                <thead>
-                  <tr>
-                    <th>{t('description')}</th>
-                    <th>{t('amount')}</th>
-                    <th>{t('type')}</th>
-                    <th>{t('appliesTo')}</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {report.expenses.map(exp => {
-                    const groupName = exp.ownerGroupId
-                      ? (building.ownerGroups || []).find(g => g._id === exp.ownerGroupId)?.name
-                      : null;
-                    return (
-                      <tr key={exp._id}>
-                        <td>{exp.description}</td>
-                        <td>{formatNumber(exp.amount)}</td>
-                        <td>
-                          <span className={`expense-type-badge ${exp.expenseType || 'proportional'}`}>
-                            {t(exp.expenseType || 'proportional')}
-                          </span>
-                        </td>
-                        <td>{groupName || t('allOwners')}</td>
-                        <td>
-                          <button
-                            className="btn btn-danger btn-small"
-                            onClick={() => handleDeleteExpense(exp._id)}
-                          >
-                            {t('delete')}
-                          </button>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            )}
-          </div>
+              {report.expenses.length > 0 && (
+                <table className="expense-table" style={{ marginTop: 15 }}>
+                  <thead>
+                    <tr>
+                      <th>{t('description')}</th>
+                      <th>{t('amount')}</th>
+                      <th>{t('type')}</th>
+                      <th>{t('appliesTo')}</th>
+                      <th></th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {report.expenses.map(exp => {
+                      const groupName = exp.ownerGroupId
+                        ? (building.ownerGroups || []).find(g => g._id === exp.ownerGroupId)?.name
+                        : null;
+                      return (
+                        <tr key={exp._id}>
+                          <td>{exp.description}</td>
+                          <td>{formatNumber(exp.amount)}</td>
+                          <td>
+                            <span className={`expense-type-badge ${exp.expenseType || 'proportional'}`}>
+                              {t(exp.expenseType || 'proportional')}
+                            </span>
+                          </td>
+                          <td>{groupName || t('allOwners')}</td>
+                          <td>
+                            <button
+                              className="btn btn-danger btn-small"
+                              onClick={() => handleDeleteExpense(exp._id)}
+                            >
+                              {t('delete')}
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>

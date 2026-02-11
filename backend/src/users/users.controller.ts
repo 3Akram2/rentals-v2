@@ -67,6 +67,7 @@ export class UsersController extends AbstractController<User, UserDocument, User
     }
 
     @Post()
+    @UseGuards(IsSuperAdminGuard)
     @AuthPermissions(Permissions.UserCreate)
     async create(@Body() data: User, @CurrentUser() user: User) {
         data.createdBy = user._id;
@@ -105,6 +106,7 @@ export class UsersController extends AbstractController<User, UserDocument, User
     }
 
     @Patch(':id')
+    @UseGuards(IsSuperAdminGuard)
     @AuthPermissions(Permissions.UserUpdate)
     async update(@Param('id') id: string, @Body() data: User) {
         return this.getOrThrow404(this.service.updateUser(id, data));

@@ -4,6 +4,7 @@ import { Allow, IsBoolean, IsEmail, IsOptional, IsString, Matches } from 'class-
 import { Group } from '../groups/group.model';
 import { NormalizeEmail, ToLowerCase } from 'src/shared/transformers';
 import { UsersGroup } from 'src/users-group/users-group.model';
+import { Building } from 'src/buildings/building.model';
 
 @Schema({ timestamps: true, strictQuery: false })
 export class User {
@@ -59,6 +60,10 @@ export class User {
     @Prop({ default: [], type: [{ type: MongooseSchema.Types.ObjectId, ref: () => UsersGroup }] })
     @Allow()
     inactiveUserGroupsIds?: string[];
+
+    @Prop({ default: [], type: [{ type: MongooseSchema.Types.ObjectId, ref: () => Building }] })
+    @Allow()
+    allowedBuildingIds?: string[];
 
     @Prop({ default: false })
     @Allow()
