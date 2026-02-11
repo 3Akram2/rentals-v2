@@ -53,7 +53,8 @@ rentals-v2/
 ### Prerequisites
 
 - Node.js 18+
-- MongoDB (local via Docker or Atlas connection)
+- Docker & Docker Compose (for local MongoDB)
+- MongoDB (local via Docker or remote Atlas connection)
 
 ### 1. Backend
 
