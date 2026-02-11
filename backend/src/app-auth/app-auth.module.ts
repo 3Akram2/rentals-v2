@@ -37,6 +37,6 @@ import { BuildingAccessService } from './building-access.service';
         BuildingAccessService,
     ],
     controllers: [AppAuthController],
-    exports: [AppAuthService, JwtModule],
+    exports: [AppAuthService, JwtModule, BuildingAccessService],
 })
 export class AppAuthModule {}
