@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, Query, NotFoundException } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, Query } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Endpoints } from 'src/shared/constants';
 import { RentalUsersService } from './rental-users.service';
@@ -40,35 +40,29 @@ export class RentalUsersController {
     @Put(':id')
     @AuthPermissions(Permissions.RentalUserUpdate)
     async update(@CurrentUser() actor: User, @Param('id') id: string, @Body() data: UpdateRentalUserDto) {
-        await this.rentalUsersService.findOneAccessible(actor, id);
-
-        const result = await this.rentalUsersService.findOneAndUpdate(
-            { _id: id },
-            { $set: { name: data.name, phone: data.phone, notes: data.notes, status: data.status } },
-            { new: true },
-        );
-        if (!result) throw new NotFoundException('User not found');
-        return result;
+        return this.rentalUsersService.updateAccessible(actor, id, {
+            name: data.name,
+            phone: data.phone,
+            notes: data.notes,
+            status: data.status,
+        } as any);
     }
 
     @Delete(':id')
     @AuthPermissions(Permissions.RentalUserDelete)
     async remove(@CurrentUser() actor: User, @Param('id') id: string) {
-        await this.rentalUsersService.findOneAccessible(actor, id);
-        return this.rentalUsersService.deleteWithValidation(id);
+        return this.rentalUsersService.removeAccessible(actor, id);
     }
 
     @Post(':id/refresh')
     @AuthPermissions(Permissions.RentalUserRead)
     async refresh(@CurrentUser() actor: User, @Param('id') id: string) {
-        await this.rentalUsersService.findOneAccessible(actor, id);
-        return this.rentalUsersService.refreshUserData(id);
+        return this.rentalUsersService.refreshAccessible(actor, id);
     }
 
     @Get(':id/report/:year')
     @AuthPermissions(Permissions.ReportRead)
     async getReport(@CurrentUser() actor: User, @Param('id') id: string, @Param('year') year: string) {
-        await this.rentalUsersService.findOneAccessible(actor, id);
-        return this.rentalUsersService.getUserReport(id, parseInt(year));
+        return this.rentalUsersService.getUserReportAccessible(actor, id, parseInt(year));
     }
 }

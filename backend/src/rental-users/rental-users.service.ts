@@ -22,16 +22,57 @@ export class RentalUsersService extends AbstractMongooseService<RentalUser, Rent
         super(repo);
     }
 
-    private async getAccessibleRentalUserIds(actor: User): Promise<string[] | null> {
+    private async getAccessibleBuildingIds(actor: User): Promise<string[] | null> {
         if (await this.buildingAccessService.isSuperAdmin(actor)) return null;
 
         const buildingFilter = await this.buildingAccessService.buildingFilter(actor, '_id');
-        const buildings = await this.buildingsService.findAll(buildingFilter);
-        const buildingIds = buildings.map((b: any) => String(b._id));
+        const buildings = await this.buildingsService.findAll(buildingFilter, { projection: { _id: 1 } });
+        return buildings.map((building: any) => String(building._id));
+    }
 
-        if (!buildingIds.length) return [];
+    private escapeRegex(input: string) {
+        return String(input || '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    }
 
-        const properties = await this.propertiesService.findAll({ buildingId: { $in: buildingIds } }, { projection: { renterId: 1 } });
+    private async isUserAccessibleByBuildings(userId: string, accessibleBuildingIds: string[]) {
+        if (!accessibleBuildingIds.length) return false;
+
+        const ownershipMatch = await this.buildingsService.findOne({
+            _id: { $in: accessibleBuildingIds },
+            'ownerGroups.members.userId': userId,
+        });
+        if (ownershipMatch) return true;
+
+        const renterProperty = await this.propertiesService.findOne({
+            buildingId: { $in: accessibleBuildingIds },
+            renterId: userId,
+        });
+        return !!renterProperty;
+    }
+
+    async findAllAccessible(actor: User, status?: string, search?: string) {
+        const query: any = {};
+        if (status) query.status = status;
+        if (search) query.name = { $regex: this.escapeRegex(search), $options: 'i' };
+
+        const accessibleBuildingIds = await this.getAccessibleBuildingIds(actor);
+        if (accessibleBuildingIds === null) {
+            return this.findAll(query, { sort: { name: 1 } });
+        }
+
+        if (!accessibleBuildingIds.length) {
+            return [];
+        }
+
+        const buildings = await this.buildingsService.findAll(
+            { _id: { $in: accessibleBuildingIds }, 'ownerGroups.members.userId': { $exists: true } },
+            { projection: { ownerGroups: 1 } },
+        );
+
+        const properties = await this.propertiesService.findAll(
+            { buildingId: { $in: accessibleBuildingIds }, renterId: { $ne: null } },
+            { projection: { renterId: 1 } },
+        );
 
         const linkedIds = new Set<string>();
 
@@ -47,18 +88,7 @@ export class RentalUsersService extends AbstractMongooseService<RentalUser, Rent
             if (property.renterId) linkedIds.add(String(property.renterId));
         });
 
-        return Array.from(linkedIds);
-    }
-
-    async findAllAccessible(actor: User, status?: string, search?: string) {
-        const query: any = {};
-        if (status) query.status = status;
-        if (search) query.name = { $regex: search, $options: 'i' };
-
-        const accessibleIds = await this.getAccessibleRentalUserIds(actor);
-        if (accessibleIds !== null) {
-            query._id = { $in: accessibleIds };
-        }
+        query._id = { $in: Array.from(linkedIds) };
 
         return this.findAll(query, { sort: { name: 1 } });
     }
@@ -67,14 +97,35 @@ export class RentalUsersService extends AbstractMongooseService<RentalUser, Rent
         const user = await this.findById(id);
         if (!user) throw new NotFoundException('User not found');
 
-        const accessibleIds = await this.getAccessibleRentalUserIds(actor);
-        if (accessibleIds === null) return user;
+        const accessibleBuildingIds = await this.getAccessibleBuildingIds(actor);
+        if (accessibleBuildingIds === null) return user;
 
-        if (!accessibleIds.includes(String(id))) {
-            throw new NotFoundException('User not found');
-        }
+        const accessible = await this.isUserAccessibleByBuildings(id, accessibleBuildingIds);
+        if (!accessible) throw new NotFoundException('User not found');
 
         return user;
+    }
+
+    async updateAccessible(actor: User, id: string, data: Partial<RentalUser>) {
+        await this.findOneAccessible(actor, id);
+        const result = await this.findOneAndUpdate({ _id: id }, { $set: data }, { new: true });
+        if (!result) throw new NotFoundException('User not found');
+        return result;
+    }
+
+    async removeAccessible(actor: User, id: string) {
+        await this.findOneAccessible(actor, id);
+        return this.deleteWithValidation(id);
+    }
+
+    async refreshAccessible(actor: User, id: string) {
+        await this.findOneAccessible(actor, id);
+        return this.refreshUserData(id);
+    }
+
+    async getUserReportAccessible(actor: User, userId: string, year: number) {
+        await this.findOneAccessible(actor, userId);
+        return this.getUserReport(userId, year, actor);
     }
 
     async refreshUserData(userId: string): Promise<RentalUser> {
@@ -122,13 +173,22 @@ export class RentalUsersService extends AbstractMongooseService<RentalUser, Rent
         );
     }
 
-    async getUserReport(userId: string, year: number) {
+    async getUserReport(userId: string, year: number, actor?: User) {
         const user = await this.findById(userId);
         if (!user) throw new NotFoundException('User not found');
 
-        const buildings = await this.buildingsService.findAll({
+        const buildingsQuery: any = {
             'ownerGroups.members.userId': userId,
-        });
+        };
+
+        if (actor) {
+            const accessibleBuildingIds = await this.getAccessibleBuildingIds(actor);
+            if (accessibleBuildingIds !== null) {
+                buildingsQuery._id = { $in: accessibleBuildingIds };
+            }
+        }
+
+        const buildings = await this.buildingsService.findAll(buildingsQuery);
 
         const buildingReports = [];
         let totalGrossIncome = 0;
