@@ -186,7 +186,7 @@ function App() {
       <div className="app">
         <header>
           <h1 className="app-title-with-logo">
-            <img src="/logo-traced.svg" alt="Rentals logo" className="app-title-logo" />
+            <img src="/logo.png" alt="Rentals logo" className="app-title-logo" />
             <span>{t('appTitle')}</span>
           </h1>
         </header>

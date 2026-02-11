@@ -49,6 +49,16 @@ function AdminUserManagement({ onClose }) {
       .join(', ');
   }
 
+  function isSuperAdminUser(user) {
+    return (user?.groups || []).some(g => (typeof g === 'string' ? g : g.name) === 'SuperAdmin');
+  }
+
+  function isProtectedPrimaryAdmin(user) {
+    const email = String(user?.email || '').toLowerCase();
+    const username = String(user?.username || '').toLowerCase();
+    return email === 'admin@rentals.local' || username === 'admin';
+  }
+
   function openAddForm() {
     setEditingUser(null);
     setForm({ name: '', email: '', username: '', password: '', groups: [], allowedBuildingIds: [] });
@@ -102,6 +112,11 @@ function AdminUserManagement({ onClose }) {
   }
 
   async function handleDelete(user) {
+    if (isProtectedPrimaryAdmin(user)) {
+      setError('Primary super admin cannot be deleted.');
+      return;
+    }
+
     if (!confirm(t('deleteAdminUser'))) return;
     try {
       await api.deleteAdminUser(user._id);
@@ -134,6 +149,14 @@ function AdminUserManagement({ onClose }) {
       };
     });
   }
+
+  const selectedGroupNames = form.groups
+    .map(id => groups.find(g => g._id === id)?.name)
+    .filter(Boolean);
+  const formHasSuperAdmin = selectedGroupNames.includes('SuperAdmin');
+
+  const isEditingSuperAdmin = isSuperAdminUser(editingUser) || formHasSuperAdmin;
+  const isEditingProtectedAdmin = isProtectedPrimaryAdmin(editingUser);
 
   if (loading) {
     return (
@@ -216,6 +239,7 @@ function AdminUserManagement({ onClose }) {
                       type="checkbox"
                       checked={form.groups.includes(group._id)}
                       onChange={() => handleGroupChange(group._id)}
+                      disabled={isEditingProtectedAdmin}
                     />
                     <span>{group.name}</span>
                   </label>
@@ -224,8 +248,14 @@ function AdminUserManagement({ onClose }) {
               {groups.length === 0 && (
                 <p className="no-data" style={{ padding: '10px 0' }}>{t('selectRole')}</p>
               )}
+              {isEditingProtectedAdmin && (
+                <p className="form-hint" style={{ marginTop: 8 }}>
+                  Primary super admin role cannot be changed.
+                </p>
+              )}
             </div>
 
+            {!isEditingSuperAdmin && (
             <div className="form-group">
               <label>Building Access</label>
               <div className="role-checkboxes">
@@ -244,6 +274,7 @@ function AdminUserManagement({ onClose }) {
                 <p className="no-data" style={{ padding: '10px 0' }}>No buildings available</p>
               )}
             </div>
+            )}
 
             <div className="form-actions">
               <button type="submit" className="btn btn-primary">
@@ -278,12 +309,14 @@ function AdminUserManagement({ onClose }) {
                   >
                     {t('edit')}
                   </button>
-                  <button
-                    className="btn btn-danger btn-small"
-                    onClick={() => handleDelete(user)}
-                  >
-                    {t('delete')}
-                  </button>
+                  {!isProtectedPrimaryAdmin(user) && (
+                    <button
+                      className="btn btn-danger btn-small"
+                      onClick={() => handleDelete(user)}
+                    >
+                      {t('delete')}
+                    </button>
+                  )}
                 </div>
               </div>
               <div className="user-notes">

@@ -1,13 +1,27 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
+import { MainGroups } from 'src/groups/constants';
 import { GroupService } from 'src/groups/group.service';
 import { User } from 'src/users/user.model';
 
 @Injectable()
 export class BuildingAccessService {
+    private superAdminGroupId?: string;
+
     constructor(private readonly groupService: GroupService) {}
 
+    private async getSuperAdminGroupId(): Promise<string | null> {
+        if (this.superAdminGroupId) return this.superAdminGroupId;
+        const superAdminGroup = await this.groupService.findOne({ name: MainGroups.SuperAdmin });
+        this.superAdminGroupId = superAdminGroup?._id ? String(superAdminGroup._id) : undefined;
+        return this.superAdminGroupId || null;
+    }
+
     async isSuperAdmin(user: User): Promise<boolean> {
-        return this.groupService.isSuperAdminGroup(user?.groups || []);
+        const superAdminGroupId = await this.getSuperAdminGroupId();
+        if (!superAdminGroupId) return false;
+
+        const userGroupIds = (user?.groups || []).map((group: any) => String(group?._id || group));
+        return userGroupIds.includes(superAdminGroupId);
     }
 
     async getAllowedBuildingIds(user: User): Promise<string[] | null> {
