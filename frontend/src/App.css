@@ -3758,3 +3758,34 @@ td.no-print {
   word-break: break-word;
   font-size: 0.86rem;
 }
+
+.ai-prompt-card {
+  border: 1px solid #dce6f2;
+  border-radius: 10px;
+  padding: 10px;
+  background: #fbfdff;
+}
+
+.ai-prompt-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.ai-active-tag {
+  margin-left: 8px;
+  font-size: 0.75rem;
+  color: #1f7a34;
+  background: #e9f8ec;
+  border: 1px solid #bfe8c8;
+  padding: 2px 6px;
+  border-radius: 999px;
+}
+
+.ai-prompt-content {
+  white-space: pre-wrap;
+  font-size: 0.9rem;
+  color: #33475b;
+}
