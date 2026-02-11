@@ -124,7 +124,11 @@ export class BuildingAiService {
         const [buildingsCount, unitsCount, usersCount, ownersAgg] = await Promise.all([
             this.buildingsService.count({}),
             this.propertiesService.count({}),
-            this.usersService.count({ deleted: { $ne: true } } as any),
+            this.usersService.count({
+                deleted: { $ne: true },
+                username: { $exists: true, $nin: [null, ''] },
+                email: { $exists: true, $nin: [null, ''] },
+            } as any),
             this.buildingsService.aggregatePipeline<{ total: number }>([
                 { $unwind: { path: '$ownerGroups', preserveNullAndEmptyArrays: false } },
                 { $unwind: { path: '$ownerGroups.members', preserveNullAndEmptyArrays: false } },
