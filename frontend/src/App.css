@@ -4033,3 +4033,146 @@ td.no-print {
     font-size: 0.78rem;
   }
 }
+
+/* Admin UI responsive improvements */
+.admin-user-management .user-notes {
+  word-break: break-word;
+}
+
+@media (max-width: 900px) {
+  .admin-user-management .access-options,
+  .admin-user-management .role-options {
+    gap: 8px;
+  }
+
+  .admin-user-management .access-option,
+  .admin-user-management .role-option {
+    grid-template-columns: 26px 1fr;
+    gap: 12px;
+    padding: 10px 12px;
+  }
+
+  .ai-dashboard .card-header {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+
+  .ai-dashboard .card-header .btn {
+    width: 100%;
+  }
+
+  .ai-dashboard .ai-table {
+    min-width: 680px;
+  }
+
+  .ai-dashboard .chat-cell {
+    min-width: 220px;
+    max-width: 300px;
+  }
+
+  .ai-prompt-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .ai-prompt-head > div:last-child {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px !important;
+  }
+
+  .ai-prompt-head > div:last-child .btn {
+    width: 100%;
+  }
+}
+
+@media (max-width: 680px) {
+  .admin-user-management .modal-header {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #fff;
+    padding-top: 8px;
+  }
+
+  .admin-user-management .user-card {
+    padding: 12px;
+  }
+
+  .admin-user-management .user-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+
+  .admin-user-management .user-actions .btn {
+    width: 100%;
+  }
+
+  .admin-user-management .form-actions {
+    flex-direction: column;
+  }
+
+  .admin-user-management .form-actions .btn {
+    width: 100%;
+  }
+
+  .ai-dashboard .ai-table {
+    min-width: 0;
+  }
+
+  .ai-dashboard .table-wrapper {
+    border: none;
+    background: transparent;
+    overflow: visible;
+  }
+
+  .ai-dashboard .ai-table,
+  .ai-dashboard .ai-table thead,
+  .ai-dashboard .ai-table tbody,
+  .ai-dashboard .ai-table tr,
+  .ai-dashboard .ai-table td {
+    display: block;
+    width: 100%;
+  }
+
+  .ai-dashboard .ai-table thead {
+    display: none;
+  }
+
+  .ai-dashboard .ai-table tr {
+    border: 1px solid #e6ecf3;
+    border-radius: 12px;
+    background: #fff;
+    margin-bottom: 10px;
+    padding: 8px;
+  }
+
+  .ai-dashboard .ai-table tbody td {
+    border: none;
+    border-bottom: 1px dashed #edf2f7;
+    padding: 8px 6px;
+  }
+
+  .ai-dashboard .ai-table tbody td:last-child {
+    border-bottom: none;
+  }
+
+  .ai-dashboard .ai-table tbody td::before {
+    content: attr(data-label);
+    display: block;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #64748b;
+    margin-bottom: 2px;
+    text-transform: uppercase;
+  }
+
+  .ai-dashboard .chat-cell {
+    min-width: 0;
+    max-width: 100%;
+  }
+}

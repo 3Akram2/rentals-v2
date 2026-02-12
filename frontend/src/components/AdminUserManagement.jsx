@@ -171,7 +171,7 @@ function AdminUserManagement({ onClose }) {
   }
 
   return (
-    <div className="user-management">
+    <div className="user-management admin-user-management">
       <div className="modal-header">
         <h3>{t('adminUsers')}</h3>
         <button className="btn btn-primary" onClick={openAddForm}>
