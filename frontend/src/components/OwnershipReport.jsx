@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { getYearlyReport } from '../api';
 import { formatNumber } from '../utils/numberToArabicWords';
+import DialogCloseButton from './DialogCloseButton';
 
 function OwnershipReport({ building, onClose, onViewGroupDetails }) {
   const { t, monthsFull, isRtl } = useLang();
@@ -135,10 +136,7 @@ function OwnershipReport({ building, onClose, onViewGroupDetails }) {
       <div>
         <div className="report-header">
           <h3>{t('divisionReport')} - {building.number}</h3>
-          <button className="btn btn-secondary dialog-header-close" onClick={onClose} aria-label={t('close')} title={t('close')}>
-            <span className="close-text">{t('close')}</span>
-            <span className="close-icon">×</span>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
         <div className="empty-state">
           <p>{t('noOwnershipConfigured')}</p>
@@ -156,10 +154,7 @@ function OwnershipReport({ building, onClose, onViewGroupDetails }) {
           {!loading && report && (
             <button className="btn btn-primary" onClick={handlePrint}>{t('print')}</button>
           )}
-          <button className="btn btn-secondary dialog-header-close" onClick={onClose} aria-label={t('close')} title={t('close')}>
-            <span className="close-text">{t('close')}</span>
-            <span className="close-icon">×</span>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
       </div>
 

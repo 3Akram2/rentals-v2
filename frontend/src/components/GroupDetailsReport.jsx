@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { createExpense, deleteExpense, getYearlyReport } from '../api';
 import NumberInput from './NumberInput';
+import DialogCloseButton from './DialogCloseButton';
 import { formatNumber } from '../utils/numberToArabicWords';
 
 function GroupDetailsReport({ group, groupShare: initialGroupShare, year: initialYear, buildingId, buildingNumber, totalKirats, expenses: initialExpenses, onExpenseChange, onClose }) {
@@ -157,10 +158,7 @@ function GroupDetailsReport({ group, groupShare: initialGroupShare, year: initia
         <h3>{t('groupDetails')} - {group.name}</h3>
         <div className="report-header-actions">
           <button className="btn btn-primary" onClick={handlePrint}>{t('print')}</button>
-          <button className="btn btn-secondary dialog-header-close" onClick={onClose} aria-label={t('close')} title={t('close')}>
-            <span className="close-text">{t('close')}</span>
-            <span className="close-icon">×</span>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
       </div>
 

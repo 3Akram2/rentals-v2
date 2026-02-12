@@ -249,6 +249,21 @@ export const translations = {
     selectRole: 'No roles available',
     passwordOptionalOnEdit: 'leave blank to keep current',
 
+    // Generic actions
+    confirm: 'Confirm',
+
+    // Success messages
+    buildingCreatedSuccessfully: 'Building created successfully',
+    buildingUpdatedSuccessfully: 'Building updated successfully',
+    buildingDeletedSuccessfully: 'Building deleted successfully',
+    propertyCreatedSuccessfully: 'Property created successfully',
+    propertyUpdatedSuccessfully: 'Property updated successfully',
+    propertyDeletedSuccessfully: 'Property deleted successfully',
+    paymentRecordedSuccessfully: 'Payment recorded successfully',
+    paymentsRecordedSuccessfully: 'Payments recorded successfully',
+    paymentUpdatedSuccessfully: 'Payment updated successfully',
+    ownershipUpdatedSuccessfully: 'Ownership updated successfully',
+
     // AI Dashboard
     aiDashboard: 'AI Dashboard',
     aiMonitoringDashboard: 'AI Monitoring Dashboard',
@@ -537,6 +552,21 @@ export const translations = {
     role: 'الدور',
     selectRole: 'لا توجد أدوار متاحة',
     passwordOptionalOnEdit: 'اتركه فارغاً للإبقاء على الحالي',
+
+    // إجراءات عامة
+    confirm: 'تأكيد',
+
+    // رسائل النجاح
+    buildingCreatedSuccessfully: 'تم إنشاء المبنى بنجاح',
+    buildingUpdatedSuccessfully: 'تم تحديث المبنى بنجاح',
+    buildingDeletedSuccessfully: 'تم حذف المبنى بنجاح',
+    propertyCreatedSuccessfully: 'تم إنشاء العقار بنجاح',
+    propertyUpdatedSuccessfully: 'تم تحديث العقار بنجاح',
+    propertyDeletedSuccessfully: 'تم حذف العقار بنجاح',
+    paymentRecordedSuccessfully: 'تم تسجيل الدفعة بنجاح',
+    paymentsRecordedSuccessfully: 'تم تسجيل الدفعات بنجاح',
+    paymentUpdatedSuccessfully: 'تم تحديث الدفعة بنجاح',
+    ownershipUpdatedSuccessfully: 'تم تحديث الملكية بنجاح',
 
     // AI Dashboard
     aiDashboard: 'لوحة الذكاء الاصطناعي',

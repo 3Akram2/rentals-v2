@@ -384,7 +384,7 @@ textarea.form-control,
 
   .confirm-overlay .confirm-modal {
     width: min(420px, 92vw);
-    max-width: 92vw;
+    /* max-width handled by width:min(...) */
     height: auto;
     max-height: 80vh;
     border-radius: 14px;
