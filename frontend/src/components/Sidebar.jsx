@@ -14,7 +14,7 @@ function Sidebar({ onNavigate, currentView }) {
     { id: 'users', icon: '👥', label: t('users'), visible: hasPermission('rental-user@read') },
     { id: 'payout', icon: '💰', label: t('payoutReport'), visible: hasPermission('report@read') },
     { id: 'adminUsers', icon: '🔐', label: t('adminUsers'), visible: hasPermission('user@read') },
-    { id: 'aiDashboard', icon: '🤖', label: 'AI Dashboard', visible: isSuperAdmin },
+    { id: 'aiDashboard', icon: '🤖', label: t('aiDashboard'), visible: isSuperAdmin },
   ].filter(item => item.visible);
 
   // Close sidebar on escape key

@@ -1,7 +1,9 @@
 import { useEffect, useState } from 'react';
+import { useLang } from '../context/LanguageContext';
 import * as api from '../api';
 
 function AiDashboard() {
+  const { t, lang, isRtl } = useLang();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -25,7 +27,7 @@ function AiDashboard() {
       setData(overview);
       setPrompts(promptsData || []);
     } catch (e) {
-      setError(e.message || 'Failed to load AI dashboard');
+      setError(e.message || t('aiLoadDashboardFailed'));
     } finally {
       setLoading(false);
     }
@@ -43,7 +45,7 @@ function AiDashboard() {
       setNewPromptContent('');
       await load();
     } catch (e) {
-      alert(e.message || 'Failed to create prompt');
+      alert(e.message || t('aiCreatePromptFailed'));
     } finally {
       setSavingPrompt(false);
     }
@@ -54,14 +56,14 @@ function AiDashboard() {
       await api.activateAiPrompt(id);
       await load();
     } catch (e) {
-      alert(e.message || 'Failed to activate prompt');
+      alert(e.message || t('aiActivatePromptFailed'));
     }
   }
 
   async function handleEditPrompt(item) {
-    const nextTitle = window.prompt('Prompt title:', item.title || '');
+    const nextTitle = window.prompt(t('aiPromptTitleLabel'), item.title || '');
     if (nextTitle === null) return;
-    const nextContent = window.prompt('Prompt content:', item.content || '');
+    const nextContent = window.prompt(t('aiPromptContentLabel'), item.content || '');
     if (nextContent === null) return;
 
     try {
@@ -71,33 +73,33 @@ function AiDashboard() {
       });
       await load();
     } catch (e) {
-      alert(e.message || 'Failed to update prompt');
+      alert(e.message || t('aiUpdatePromptFailed'));
     }
   }
 
-  if (loading) return <div className="card"><div className="loading-text">Loading AI dashboard...</div></div>;
+  if (loading) return <div className="card"><div className="loading-text">{t('aiLoadingDashboard')}</div></div>;
   if (error) return <div className="card"><div className="error">{error}</div></div>;
 
   const stats = data?.stats || {};
   const chats = data?.recentChats || [];
 
   return (
-    <div className="ai-dashboard">
+    <div className="ai-dashboard" dir={isRtl ? 'rtl' : 'ltr'}>
       <div className="card">
-        <div className="card-title">AI Monitoring Dashboard</div>
-        <div className="stats">
-          <div className="stat"><span className="stat-value">{stats.buildings || 0}</span> Buildings</div>
-          <div className="stat"><span className="stat-value">{stats.units || 0}</span> Units</div>
-          <div className="stat"><span className="stat-value">{stats.owners || 0}</span> Owners</div>
-          <div className="stat"><span className="stat-value">{stats.loginUsers || 0}</span> Admin Users</div>
-          <div className="stat"><span className="stat-value">{stats.chats || 0}</span> Chats</div>
+        <div className="card-title">{t('aiMonitoringDashboard')}</div>
+        <div className="stats ai-stats-grid">
+          <div className="stat"><span className="stat-value">{stats.buildings || 0}</span> {t('buildings')}</div>
+          <div className="stat"><span className="stat-value">{stats.units || 0}</span> {t('aiUnits')}</div>
+          <div className="stat"><span className="stat-value">{stats.owners || 0}</span> {t('allOwners')}</div>
+          <div className="stat"><span className="stat-value">{stats.loginUsers || 0}</span> {t('adminUsers')}</div>
+          <div className="stat"><span className="stat-value">{stats.chats || 0}</span> {t('aiChats')}</div>
         </div>
       </div>
 
       <div className="card">
         <div className="card-header" style={{ marginBottom: 10 }}>
-          <div className="card-title">Prompt Versions</div>
-          <button className="btn btn-secondary btn-small" onClick={load}>Refresh</button>
+          <div className="card-title">{t('aiPromptVersions')}</div>
+          <button className="btn btn-secondary btn-small" onClick={load}>{t('refreshData')}</button>
         </div>
 
         <div className="form-group" style={{ marginBottom: 12 }}>
@@ -105,7 +107,7 @@ function AiDashboard() {
             className="form-control"
             value={newPromptTitle}
             onChange={(e) => setNewPromptTitle(e.target.value)}
-            placeholder="Prompt title (optional)"
+            placeholder={t('aiPromptTitleOptional')}
           />
         </div>
 
@@ -115,12 +117,12 @@ function AiDashboard() {
             rows={4}
             value={newPromptContent}
             onChange={(e) => setNewPromptContent(e.target.value)}
-            placeholder="Write prompt content..."
+            placeholder={t('aiWritePromptContent')}
           />
         </div>
 
         <button className="btn btn-primary" onClick={handleCreatePrompt} disabled={savingPrompt || !newPromptContent.trim()}>
-          {savingPrompt ? 'Saving...' : 'Add Prompt'}
+          {savingPrompt ? t('aiSaving') : t('aiAddPrompt')}
         </button>
 
         <div style={{ marginTop: 14, display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -128,48 +130,48 @@ function AiDashboard() {
             <div key={p._id} className="ai-prompt-card">
               <div className="ai-prompt-head">
                 <div>
-                  <strong>v{p.version}</strong> — {p.title || `Prompt v${p.version}`}
-                  {p.active && <span className="ai-active-tag">Active</span>}
+                  <strong>v{p.version}</strong> — {p.title || `${t('aiPrompt')} v${p.version}`}
+                  {p.active && <span className="ai-active-tag">{t('active')}</span>}
                 </div>
                 <div style={{ display: 'flex', gap: 6 }}>
-                  <button className="btn btn-secondary btn-small" onClick={() => handleEditPrompt(p)}>Edit</button>
+                  <button className="btn btn-secondary btn-small" onClick={() => handleEditPrompt(p)}>{t('edit')}</button>
                   {!p.active && (
-                    <button className="btn btn-primary btn-small" onClick={() => handleActivatePrompt(p._id)}>Set Active</button>
+                    <button className="btn btn-primary btn-small" onClick={() => handleActivatePrompt(p._id)}>{t('aiSetActive')}</button>
                   )}
                 </div>
               </div>
               <div className="ai-prompt-content">{p.content}</div>
             </div>
           ))}
-          {prompts.length === 0 && <div className="no-data">No prompts yet.</div>}
+          {prompts.length === 0 && <div className="no-data">{t('aiNoPromptsYet')}</div>}
         </div>
       </div>
 
       <div className="card">
         <div className="card-header" style={{ marginBottom: 10 }}>
-          <div className="card-title">Recent AI Chats</div>
-          <button className="btn btn-secondary btn-small" onClick={load}>Refresh</button>
+          <div className="card-title">{t('aiRecentChats')}</div>
+          <button className="btn btn-secondary btn-small" onClick={load}>{t('refreshData')}</button>
         </div>
 
         {chats.length === 0 ? (
-          <div className="no-data">No chats yet.</div>
+          <div className="no-data">{t('aiNoChatsYet')}</div>
         ) : (
           <div className="table-wrapper">
-            <table className="table">
+            <table className="table ai-table">
               <thead>
                 <tr>
-                  <th>Time</th>
-                  <th>User</th>
-                  <th>Building</th>
-                  <th>Prompt</th>
-                  <th>AI Response</th>
+                  <th>{t('aiTime')}</th>
+                  <th>{t('users')}</th>
+                  <th>{t('buildings')}</th>
+                  <th>{t('aiPrompt')}</th>
+                  <th>{t('aiResponse')}</th>
                 </tr>
               </thead>
               <tbody>
                 {chats.map((chat) => (
                   <tr key={chat._id}>
-                    <td>{new Date(chat.createdAt).toLocaleString()}</td>
-                    <td>{chat.actorId?.name || chat.actorId?.email || chat.actorId?.username || 'Unknown'}</td>
+                    <td>{new Date(chat.createdAt).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')}</td>
+                    <td>{chat.actorId?.name || chat.actorId?.email || chat.actorId?.username || t('aiUnknown')}</td>
                     <td>{chat.buildingId?.number || '-'}{chat.buildingId?.address ? ` - ${chat.buildingId.address}` : ''}</td>
                     <td className="chat-cell">{chat.question}</td>
                     <td className="chat-cell">{chat.answer}</td>
