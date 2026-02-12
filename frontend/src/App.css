@@ -385,11 +385,13 @@ textarea.form-control,
   .confirm-overlay .confirm-modal {
     width: min(420px, 92vw) !important;
     height: auto !important;
-    max-height: min(420px, 70vh) !important;
+    min-height: 0 !important;
+    max-height: none !important;
     border-radius: 14px !important;
     padding: 16px !important;
     display: block !important;
-    overflow: auto;
+    overflow: visible;
+    align-self: center;
   }
 
   .confirm-overlay .confirm-modal-actions {
