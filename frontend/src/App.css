@@ -112,6 +112,55 @@ body.theme-dark .btn-secondary:hover:not(:disabled) {
   background: #334155;
 }
 
+/* Dark mode - Building AI assistant */
+body.theme-dark .ai-assistant-overlay {
+  background: rgba(2, 6, 23, 0.72);
+}
+
+body.theme-dark .ai-assistant-panel {
+  background: #0b1220;
+  border-left-color: #1f2937;
+}
+
+body.theme-dark .ai-assistant-header,
+body.theme-dark .ai-assistant-input-row {
+  background: #0f172a;
+  border-color: #1f2937;
+}
+
+body.theme-dark .ai-assistant-title {
+  color: #e5e7eb;
+}
+
+body.theme-dark .ai-assistant-subtitle,
+body.theme-dark .ai-typing {
+  color: #94a3b8;
+}
+
+body.theme-dark .ai-assistant-empty {
+  background: #111827;
+  border-color: #334155;
+  color: #cbd5e1;
+}
+
+body.theme-dark .ai-message.ai {
+  background: #0f172a;
+  border-color: #334155;
+  color: #e5e7eb;
+}
+
+body.theme-dark .ai-message.user {
+  background: #172554;
+  border-color: #1d4ed8;
+  color: #dbeafe;
+}
+
+body.theme-dark .ai-assistant-input-row .form-control {
+  background: #0b1220;
+  border-color: #334155;
+  color: #e5e7eb;
+}
+
 /* Dark mode table consistency */
 body.theme-dark .report-table,
 body.theme-dark .division-table,
@@ -4088,6 +4137,10 @@ td.no-print {
 .ai-message-text {
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.ai-welcome {
+  opacity: 0.95;
 }
 
 .ai-typing {
