@@ -526,7 +526,7 @@ function App() {
       )}
 
       {confirmDialog.open && (
-        <div className="modal-overlay" onClick={() => closeConfirm(false)}>
+        <div className="modal-overlay confirm-overlay" onClick={() => closeConfirm(false)}>
           <div className="modal confirm-modal" onClick={(e) => e.stopPropagation()}>
             <div className="confirm-modal-title">{t('confirmAction')}</div>
             <div className="confirm-modal-message">{confirmDialog.message}</div>

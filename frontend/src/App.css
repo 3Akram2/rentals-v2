@@ -375,6 +375,24 @@ textarea.form-control,
   }
 }
 
+@media (max-width: 768px) {
+  .confirm-overlay {
+    align-items: center;
+    justify-content: center;
+    padding: 14px;
+  }
+
+  .confirm-overlay .confirm-modal {
+    width: min(420px, 92vw);
+    max-width: 92vw;
+    height: auto;
+    max-height: 80vh;
+    border-radius: 14px;
+    padding: 16px;
+    display: block;
+  }
+}
+
 /* Property List */
 .property-list {
   margin-top: 15px;
