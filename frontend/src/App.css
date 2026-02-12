@@ -515,11 +515,15 @@ textarea.form-control,
   overflow-y: auto;
 }
 
-.dialog-back-btn {
-  position: sticky;
-  top: 0;
-  z-index: 2;
+.dialog-close-x {
+  display: inline-flex;
+  margin-left: auto;
   margin-bottom: 10px;
+}
+
+[dir="rtl"] .dialog-close-x {
+  margin-left: 0;
+  margin-right: auto;
 }
 
 .report-header {
