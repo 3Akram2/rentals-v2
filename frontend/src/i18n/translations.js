@@ -299,6 +299,8 @@ export const translations = {
     aiUpdatePromptFailed: 'Failed to update prompt',
     aiDeletePromptFailed: 'Failed to delete prompt',
     confirmDeletePrompt: 'Delete this prompt version?',
+    confirmDeleteChat: 'Delete this chat entry?',
+    aiDeleteChatFailed: 'Failed to delete chat entry',
     aiWelcomeMessage: 'Hi, how can I help you today?',
     aiAssistantHint: 'Ask about units, renters, and payment records for current + previous year.',
 
@@ -615,6 +617,8 @@ export const translations = {
     aiUpdatePromptFailed: 'فشل تحديث التوجيه',
     aiDeletePromptFailed: 'فشل حذف التوجيه',
     confirmDeletePrompt: 'هل تريد حذف نسخة التوجيه هذه؟',
+    confirmDeleteChat: 'هل تريد حذف سجل المحادثة هذا؟',
+    aiDeleteChatFailed: 'فشل حذف سجل المحادثة',
     aiWelcomeMessage: 'مرحبًا، كيف يمكنني مساعدتك اليوم؟',
     aiAssistantHint: 'اسأل عن الوحدات والمستأجرين وسجلات المدفوعات للسنة الحالية والسابقة.',
 
