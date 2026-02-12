@@ -247,6 +247,14 @@ export class BuildingAiService {
         return { message: 'Prompt deleted successfully' };
     }
 
+    async deleteChat(chatId: string) {
+        const chat = await this.chatRepo.findById(chatId);
+        if (!chat) throw new NotFoundException('Chat entry not found');
+
+        await this.chatRepo.deleteById(chatId);
+        return { message: 'Chat entry deleted successfully' };
+    }
+
     private buildContextText(
         building: Building,
         properties: Property[],

@@ -15,6 +15,7 @@ function AiDashboard() {
   const [deletingPromptId, setDeletingPromptId] = useState('');
   const [activatingPromptId, setActivatingPromptId] = useState('');
   const [chatPage, setChatPage] = useState(1);
+  const [deletingChatId, setDeletingChatId] = useState('');
 
   const CHATS_PER_PAGE = 10;
 
@@ -112,6 +113,32 @@ function AiDashboard() {
     const start = (chatPage - 1) * CHATS_PER_PAGE;
     return chats.slice(start, start + CHATS_PER_PAGE);
   }, [chats, chatPage]);
+
+  async function handleDeleteChat(chatId) {
+    const ok = window.confirm(t('confirmDeleteChat'));
+    if (!ok) return;
+
+    setDeletingChatId(chatId);
+    try {
+      await api.deleteAiChat(chatId);
+      setData((prev) => {
+        if (!prev) return prev;
+        const nextChats = (prev.recentChats || []).filter((c) => c._id !== chatId);
+        return {
+          ...prev,
+          stats: {
+            ...(prev.stats || {}),
+            chats: Math.max(0, (prev.stats?.chats || 0) - 1),
+          },
+          recentChats: nextChats,
+        };
+      });
+    } catch (e) {
+      alert(e.message || t('aiDeleteChatFailed'));
+    } finally {
+      setDeletingChatId('');
+    }
+  }
 
   useEffect(() => {
     if (chatPage > totalChatPages) setChatPage(totalChatPages);
@@ -212,6 +239,7 @@ function AiDashboard() {
                     <th>{t('buildings')}</th>
                     <th>{t('aiPrompt')}</th>
                     <th>{t('aiResponse')}</th>
+                    <th>{t('delete')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -222,6 +250,15 @@ function AiDashboard() {
                       <td data-label={t('buildings')}>{chat.buildingId?.number || '-'}{chat.buildingId?.address ? ` - ${chat.buildingId.address}` : ''}</td>
                       <td data-label={t('aiPrompt')} className="chat-cell">{chat.question}</td>
                       <td data-label={t('aiResponse')} className="chat-cell">{chat.answer}</td>
+                      <td data-label={t('delete')}>
+                        <button
+                          className="btn btn-danger btn-small"
+                          onClick={() => handleDeleteChat(chat._id)}
+                          disabled={deletingChatId === chat._id}
+                        >
+                          {deletingChatId === chat._id ? t('loading') : t('delete')}
+                        </button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>

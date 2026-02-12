@@ -365,3 +365,11 @@ export async function deleteAiPrompt(id) {
   });
   return handleResponseOrThrow(res);
 }
+
+export async function deleteAiChat(id) {
+  const res = await fetch(`${API_BASE}/ai-dashboard/chats/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(false)
+  });
+  return handleResponseOrThrow(res);
+}

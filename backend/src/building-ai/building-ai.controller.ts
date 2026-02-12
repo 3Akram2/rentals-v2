@@ -64,4 +64,11 @@ export class BuildingAiController {
     async deletePrompt(@Param('id') id: string) {
         return this.buildingAiService.deletePrompt(id);
     }
+
+    @Delete('ai-dashboard/chats/:id')
+    @UseGuards(SuperAdminAccessGuard)
+    @AuthPermissions(Permissions.UserRead)
+    async deleteChat(@Param('id') id: string) {
+        return this.buildingAiService.deleteChat(id);
+    }
 }
