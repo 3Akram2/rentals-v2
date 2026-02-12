@@ -231,6 +231,22 @@ export class BuildingAiService {
         return this.promptRepo.updateById(promptId, { active: true });
     }
 
+    async deletePrompt(promptId: string) {
+        const prompt = await this.promptRepo.findById(promptId);
+        if (!prompt) throw new NotFoundException('Prompt not found');
+
+        await this.promptRepo.deleteById(promptId);
+
+        if ((prompt as any).active) {
+            const latest = await this.promptRepo.findOne({}, { sort: { version: -1 } });
+            if (latest) {
+                await this.promptRepo.updateById((latest as any)._id, { active: true });
+            }
+        }
+
+        return { message: 'Prompt deleted successfully' };
+    }
+
     private buildContextText(
         building: Building,
         properties: Property[],
