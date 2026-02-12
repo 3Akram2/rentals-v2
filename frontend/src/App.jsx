@@ -34,6 +34,7 @@ function App() {
   const [modal, setModal] = useState({ type: null, data: null });
   const [loading, setLoading] = useState(true);
   const [aiOpen, setAiOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
 
   const canCreateBuilding = hasPermission('building@create');
   const canUpdateBuilding = hasPermission('building@update');
@@ -56,6 +57,12 @@ function App() {
       loadProperties(selectedBuilding._id);
     }
   }, [selectedBuilding]);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', onResize);
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   function handleNavigate(view) {
     setCurrentView(view);
@@ -188,7 +195,7 @@ function App() {
       <Sidebar
         onNavigate={handleNavigate}
         currentView={currentView}
-        hidden={Boolean(modal.type) || aiOpen}
+        hidden={isMobile && (Boolean(modal.type) || aiOpen)}
       />
 
       <div className="app">
