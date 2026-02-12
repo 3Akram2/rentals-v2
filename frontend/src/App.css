@@ -240,6 +240,25 @@ body.theme-dark .ai-dashboard .ai-table tbody tr:hover {
   border-color: #334155;
 }
 
+body.theme-dark .ai-prompt-card {
+  background: #0b1220;
+  border-color: #334155;
+}
+
+body.theme-dark .ai-prompt-head,
+body.theme-dark .ai-prompt-content {
+  color: #e5e7eb;
+}
+
+body.theme-dark .ai-prompt-content {
+  background: #111827;
+  border-color: #334155;
+}
+
+body.theme-dark .ai-pagination-text {
+  color: #cbd5e1;
+}
+
 /* Dark mode - payout owner selection/readability */
 body.theme-dark .users-selection,
 body.theme-dark .payout-results {
@@ -4385,6 +4404,21 @@ td.no-print {
   font-size: 0.9rem;
   color: #33475b;
   line-height: 1.5;
+}
+
+.ai-pagination {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.ai-pagination-text {
+  font-size: 0.9rem;
+  color: #33475b;
+  min-width: 90px;
+  text-align: center;
 }
 
 [dir="rtl"] .building-ai-fab {
