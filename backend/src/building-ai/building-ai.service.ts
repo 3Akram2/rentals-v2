@@ -15,7 +15,7 @@ import { Payment } from 'src/payments/payment.model';
 
 @Injectable()
 export class BuildingAiService {
-    private readonly model = process.env.GROQ_MODEL || 'llama-3.1-8b-instant';
+    private readonly model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
 
     constructor(
         private readonly buildingsService: BuildingsService,
@@ -42,8 +42,10 @@ export class BuildingAiService {
         const building = await this.buildingsService.findById(buildingId);
         if (!building) throw new NotFoundException('Building not found');
 
-        const nowYear = new Date().getFullYear();
+        const now = new Date();
+        const nowYear = now.getFullYear();
         const prevYear = nowYear - 1;
+        const todayIso = now.toISOString().slice(0, 10);
 
         const properties = await this.propertiesService.findAll({ buildingId }, { sort: { unit: 1 } });
         const typedProperties = properties as Property[];
@@ -82,6 +84,11 @@ export class BuildingAiService {
         const contextMessage = [
             basePrompt,
             '',
+            `Today date: ${todayIso}`,
+            `Current year: ${nowYear}`,
+            `Previous year: ${prevYear}`,
+            'When the user asks about "today", "this year", or relative dates, use the date values above.',
+            '',
             '=== BUILDING CONTEXT ===',
             contextText,
             '',
@@ -95,7 +102,7 @@ export class BuildingAiService {
 
         const answer = await this.queryGroq(
             [
-                { role: 'system', content: 'You are a rental-building assistant. Answer only from provided building context. If data is missing, say it is unavailable in records.' },
+                { role: 'system', content: 'You are a rental-building assistant. Answer only from provided building context. If data is missing, say it is unavailable in records. You always know today date and current year from the system context.' },
                 { role: 'system', content: contextMessage },
                 ...normalizedHistory,
                 { role: 'user', content: question },
