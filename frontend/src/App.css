@@ -550,15 +550,8 @@ textarea.form-control,
   overflow-y: auto;
 }
 
-.dialog-close-x {
-  display: inline-flex;
-  margin-left: auto;
-  margin-bottom: 10px;
-}
-
-[dir="rtl"] .dialog-close-x {
-  margin-left: 0;
-  margin-right: auto;
+.dialog-header-close .close-icon {
+  display: none;
 }
 
 .report-header {
@@ -2873,16 +2866,48 @@ td.no-print {
     padding: 6px 4px;
   }
 
+  .report-header {
+    position: sticky;
+    top: 0;
+    z-index: 6;
+    background: #fff;
+    padding-top: 6px;
+  }
+
   .report-header h3 {
     font-size: 1rem;
   }
 
   .report-header-actions {
-    flex-direction: column;
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 6px;
   }
 
   .report-header-actions .btn {
-    width: 100%;
+    width: auto;
+  }
+
+  .report-header-actions .dialog-header-close {
+    width: 30px;
+    min-width: 30px;
+    height: 30px;
+    padding: 0;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .report-header-actions .dialog-header-close .close-text {
+    display: none;
+  }
+
+  .report-header-actions .dialog-header-close .close-icon {
+    display: inline;
+    font-size: 1rem;
+    line-height: 1;
   }
 
   /* Summary cards 2 columns on small mobile */

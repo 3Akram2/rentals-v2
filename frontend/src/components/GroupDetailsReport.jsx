@@ -157,7 +157,10 @@ function GroupDetailsReport({ group, groupShare: initialGroupShare, year: initia
         <h3>{t('groupDetails')} - {group.name}</h3>
         <div className="report-header-actions">
           <button className="btn btn-primary" onClick={handlePrint}>{t('print')}</button>
-          <button className="btn btn-secondary" onClick={onClose}>{t('close')}</button>
+          <button className="btn btn-secondary dialog-header-close" onClick={onClose} aria-label={t('close')} title={t('close')}>
+            <span className="close-text">{t('close')}</span>
+            <span className="close-icon">×</span>
+          </button>
         </div>
       </div>
 

@@ -431,7 +431,6 @@ function App() {
       {modal.type === 'report' && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <button className="btn btn-danger btn-icon btn-small dialog-close-x" onClick={closeModal} aria-label={t('close')} title={t('close')}>×</button>
             <Report
               building={modal.data}
               onClose={closeModal}
@@ -483,7 +482,6 @@ function App() {
       {modal.type === 'division' && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <button className="btn btn-danger btn-icon btn-small dialog-close-x" onClick={closeModal} aria-label={t('close')} title={t('close')}>×</button>
             <OwnershipReport
               building={modal.data}
               onClose={closeModal}
@@ -498,7 +496,6 @@ function App() {
       {modal.type === 'groupDetails' && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <button className="btn btn-danger btn-icon btn-small dialog-close-x" onClick={closeModal} aria-label={t('close')} title={t('close')}>×</button>
             <GroupDetailsReport
               group={modal.data.group}
               groupShare={modal.data.groupShare}
@@ -520,7 +517,6 @@ function App() {
       {modal.type === 'userReport' && (
         <div className="modal-overlay" onClick={closeModal}>
           <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <button className="btn btn-danger btn-icon btn-small dialog-close-x" onClick={closeModal} aria-label={t('close')} title={t('close')}>×</button>
             <UserReport
               user={modal.data}
               onClose={closeModal}
