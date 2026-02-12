@@ -9,6 +9,7 @@ import { User } from 'src/users/user.model';
 import { ErrorCodes } from 'src/shared/errors/custom';
 import { GroupService } from 'src/groups/group.service';
 import { UserLoginDto } from './dto/user-login.dto';
+import { AuditService } from 'src/audit/audit.service';
 
 @Injectable()
 export class AppAuthService {
@@ -26,6 +27,7 @@ export class AppAuthService {
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly groupService: GroupService,
+        private readonly auditService: AuditService,
     ) {
         this.usernameField = this.configService.get('server')['authentication']['usernameField'];
         this.passwordField = this.configService.get('server')['authentication']['passwordField'];
@@ -168,11 +170,63 @@ export class AppAuthService {
             },
         );
 
-        if (!user) throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
+        if (!user) {
+            await this.auditService.log({
+                eventType: 'auth.login.fail',
+                severity: 'warn',
+                actor: { email },
+                action: { module: 'auth', operation: 'login', status: 'fail', reason: 'wrongCredentials' },
+                http: { statusCode: 400 },
+                meta: { loginIdentifier: email },
+            });
+            throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
+        }
 
         const isValidPassword = await this.comparePassword(password, user.password);
-        if (!isValidPassword) throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
-        if (!(await this.isUserEnabled(user))) throw new BadRequestException(ErrorCodes.auth.userNotActive);
+        if (!isValidPassword) {
+            await this.auditService.log({
+                eventType: 'auth.login.fail',
+                severity: 'warn',
+                actor: {
+                    userId: String((user as any)._id),
+                    email: (user as any).email,
+                    username: (user as any).username,
+                    name: (user as any).name,
+                },
+                action: { module: 'auth', operation: 'login', status: 'fail', reason: 'wrongCredentials' },
+                http: { statusCode: 400 },
+            });
+            throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
+        }
+        if (!(await this.isUserEnabled(user))) {
+            await this.auditService.log({
+                eventType: 'auth.login.fail',
+                severity: 'warn',
+                actor: {
+                    userId: String((user as any)._id),
+                    email: (user as any).email,
+                    username: (user as any).username,
+                    name: (user as any).name,
+                },
+                action: { module: 'auth', operation: 'login', status: 'fail', reason: 'userNotActive' },
+                http: { statusCode: 400 },
+            });
+            throw new BadRequestException(ErrorCodes.auth.userNotActive);
+        }
+
+        await this.auditService.log({
+            eventType: 'auth.login.success',
+            severity: 'info',
+            actor: {
+                userId: String((user as any)._id),
+                email: (user as any).email,
+                username: (user as any).username,
+                name: (user as any).name,
+                roles: ((user as any).groups || []).map((g) => (typeof g === 'string' ? g : g?.name)).filter(Boolean),
+            },
+            action: { module: 'auth', operation: 'login', status: 'success' },
+            http: { statusCode: 200 },
+        });
 
         return this.prepareTokenResponse(user);
     }
