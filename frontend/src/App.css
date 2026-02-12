@@ -515,6 +515,13 @@ textarea.form-control,
   overflow-y: auto;
 }
 
+.dialog-back-btn {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  margin-bottom: 10px;
+}
+
 .report-header {
   display: flex;
   justify-content: space-between;
