@@ -62,12 +62,22 @@ function BuildingList({
                   </button>
                 )}
                 {canUpdateBuilding && (
-                  <button className="btn btn-secondary btn-small" onClick={() => onEdit(building)}>
+                  <button
+                    className="btn btn-secondary btn-small"
+                    onClick={() => {
+                      if (window.confirm(`Confirm ${t('edit')}?`)) onEdit(building);
+                    }}
+                  >
                     {t('edit')}
                   </button>
                 )}
                 {canDeleteBuilding && (
-                  <button className="btn btn-danger btn-small" onClick={() => onDelete(building._id)}>
+                  <button
+                    className="btn btn-danger btn-small"
+                    onClick={() => {
+                      if (window.confirm(t('deleteBuilding'))) onDelete(building._id);
+                    }}
+                  >
                     {t('delete')}
                   </button>
                 )}
