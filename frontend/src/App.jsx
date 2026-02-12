@@ -335,6 +335,9 @@ function App() {
               <div>
                 <div className="card-title">{t('buildingNumber')}: {selectedBuilding.number}</div>
                 {selectedBuilding.address && <div className="card-subtitle">{selectedBuilding.address}</div>}
+                <div className="card-subtitle">
+                  {t('buildingModerator')}: {selectedBuilding?.moderatorAdminUserId?.name || t('noModeratorAssigned')}
+                </div>
               </div>
               <div className="card-actions">
                 {canReadReport && (

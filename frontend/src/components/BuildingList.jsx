@@ -41,6 +41,9 @@ function BuildingList({
               <div style={{ cursor: 'pointer' }} onClick={() => onSelect(building)}>
                 <div className="card-title">{t('buildingNumber')}: {building.number}</div>
                 {building.address && <div className="card-subtitle">{building.address}</div>}
+                <div className="card-subtitle">
+                  {t('buildingModerator')}: {building?.moderatorAdminUserId?.name || t('noModeratorAssigned')}
+                </div>
               </div>
               <div className="card-actions">
                 <button className="btn btn-primary btn-small" onClick={() => onSelect(building)}>
