@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useLang } from '../context/LanguageContext';
 import * as api from '../api';
 
@@ -6,18 +6,26 @@ function AiDashboard() {
   const { t, lang, isRtl } = useLang();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState('');
   const [prompts, setPrompts] = useState([]);
   const [newPromptTitle, setNewPromptTitle] = useState('');
   const [newPromptContent, setNewPromptContent] = useState('');
   const [savingPrompt, setSavingPrompt] = useState(false);
+  const [deletingPromptId, setDeletingPromptId] = useState('');
+  const [activatingPromptId, setActivatingPromptId] = useState('');
+  const [chatPage, setChatPage] = useState(1);
+
+  const CHATS_PER_PAGE = 10;
 
   useEffect(() => {
-    load();
+    load(true);
   }, []);
 
-  async function load() {
-    setLoading(true);
+  async function load(initial = false) {
+    if (initial || !data) setLoading(true);
+    else setRefreshing(true);
+
     setError('');
     try {
       const [overview, promptsData] = await Promise.all([
@@ -30,6 +38,7 @@ function AiDashboard() {
       setError(e.message || t('aiLoadDashboardFailed'));
     } finally {
       setLoading(false);
+      setRefreshing(false);
     }
   }
 
@@ -43,7 +52,7 @@ function AiDashboard() {
       });
       setNewPromptTitle('');
       setNewPromptContent('');
-      await load();
+      await load(false);
     } catch (e) {
       alert(e.message || t('aiCreatePromptFailed'));
     } finally {
@@ -52,11 +61,14 @@ function AiDashboard() {
   }
 
   async function handleActivatePrompt(id) {
+    setActivatingPromptId(id);
     try {
       await api.activateAiPrompt(id);
-      await load();
+      await load(false);
     } catch (e) {
       alert(e.message || t('aiActivatePromptFailed'));
+    } finally {
+      setActivatingPromptId('');
     }
   }
 
@@ -71,7 +83,7 @@ function AiDashboard() {
         title: nextTitle,
         content: nextContent,
       });
-      await load();
+      await load(false);
     } catch (e) {
       alert(e.message || t('aiUpdatePromptFailed'));
     }
@@ -80,19 +92,33 @@ function AiDashboard() {
   async function handleDeletePrompt(item) {
     const ok = window.confirm(t('confirmDeletePrompt'));
     if (!ok) return;
+    setDeletingPromptId(item._id);
     try {
       await api.deleteAiPrompt(item._id);
-      await load();
+      setPrompts((prev) => prev.filter((p) => p._id !== item._id));
+      await load(false);
     } catch (e) {
       alert(e.message || t('aiDeletePromptFailed'));
+    } finally {
+      setDeletingPromptId('');
     }
   }
 
-  if (loading) return <div className="card"><div className="loading-text">{t('aiLoadingDashboard')}</div></div>;
-  if (error) return <div className="card"><div className="error">{error}</div></div>;
-
   const stats = data?.stats || {};
   const chats = data?.recentChats || [];
+  const totalChatPages = Math.max(1, Math.ceil(chats.length / CHATS_PER_PAGE));
+
+  const pagedChats = useMemo(() => {
+    const start = (chatPage - 1) * CHATS_PER_PAGE;
+    return chats.slice(start, start + CHATS_PER_PAGE);
+  }, [chats, chatPage]);
+
+  useEffect(() => {
+    if (chatPage > totalChatPages) setChatPage(totalChatPages);
+  }, [chatPage, totalChatPages]);
+
+  if (loading) return <div className="card"><div className="loading-text">{t('aiLoadingDashboard')}</div></div>;
+  if (error && !data) return <div className="card"><div className="error">{error}</div></div>;
 
   return (
     <div className="ai-dashboard" dir={isRtl ? 'rtl' : 'ltr'}>
@@ -110,7 +136,9 @@ function AiDashboard() {
       <div className="card ai-prompts-card">
         <div className="card-header" style={{ marginBottom: 10 }}>
           <div className="card-title">{t('aiPromptVersions')}</div>
-          <button className="btn btn-secondary btn-small" onClick={load}>{t('refreshData')}</button>
+          <button className="btn btn-secondary btn-small" onClick={() => load(false)} disabled={refreshing}>
+            {refreshing ? t('loading') : t('refreshData')}
+          </button>
         </div>
 
         <div className="form-group" style={{ marginBottom: 12 }}>
@@ -147,9 +175,13 @@ function AiDashboard() {
                 <div style={{ display: 'flex', gap: 6 }}>
                   <button className="btn btn-secondary btn-small" onClick={() => handleEditPrompt(p)}>{t('edit')}</button>
                   {!p.active && (
-                    <button className="btn btn-primary btn-small" onClick={() => handleActivatePrompt(p._id)}>{t('aiSetActive')}</button>
+                    <button className="btn btn-primary btn-small" onClick={() => handleActivatePrompt(p._id)} disabled={activatingPromptId === p._id}>
+                      {activatingPromptId === p._id ? t('loading') : t('aiSetActive')}
+                    </button>
                   )}
-                  <button className="btn btn-danger btn-small" onClick={() => handleDeletePrompt(p)}>{t('delete')}</button>
+                  <button className="btn btn-danger btn-small" onClick={() => handleDeletePrompt(p)} disabled={deletingPromptId === p._id}>
+                    {deletingPromptId === p._id ? t('loading') : t('delete')}
+                  </button>
                 </div>
               </div>
               <div className="ai-prompt-content">{p.content}</div>
@@ -162,36 +194,50 @@ function AiDashboard() {
       <div className="card ai-chats-card">
         <div className="card-header" style={{ marginBottom: 10 }}>
           <div className="card-title">{t('aiRecentChats')}</div>
-          <button className="btn btn-secondary btn-small" onClick={load}>{t('refreshData')}</button>
+          <button className="btn btn-secondary btn-small" onClick={() => load(false)} disabled={refreshing}>
+            {refreshing ? t('loading') : t('refreshData')}
+          </button>
         </div>
 
         {chats.length === 0 ? (
           <div className="no-data">{t('aiNoChatsYet')}</div>
         ) : (
-          <div className="table-wrapper">
-            <table className="table ai-table">
-              <thead>
-                <tr>
-                  <th>{t('aiTime')}</th>
-                  <th>{t('users')}</th>
-                  <th>{t('buildings')}</th>
-                  <th>{t('aiPrompt')}</th>
-                  <th>{t('aiResponse')}</th>
-                </tr>
-              </thead>
-              <tbody>
-                {chats.map((chat) => (
-                  <tr key={chat._id}>
-                    <td data-label={t('aiTime')}>{new Date(chat.createdAt).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')}</td>
-                    <td data-label={t('users')}>{chat.actorId?.name || chat.actorId?.email || chat.actorId?.username || t('aiUnknown')}</td>
-                    <td data-label={t('buildings')}>{chat.buildingId?.number || '-'}{chat.buildingId?.address ? ` - ${chat.buildingId.address}` : ''}</td>
-                    <td data-label={t('aiPrompt')} className="chat-cell">{chat.question}</td>
-                    <td data-label={t('aiResponse')} className="chat-cell">{chat.answer}</td>
+          <>
+            <div className="table-wrapper">
+              <table className="table ai-table">
+                <thead>
+                  <tr>
+                    <th>{t('aiTime')}</th>
+                    <th>{t('users')}</th>
+                    <th>{t('buildings')}</th>
+                    <th>{t('aiPrompt')}</th>
+                    <th>{t('aiResponse')}</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody>
+                  {pagedChats.map((chat) => (
+                    <tr key={chat._id}>
+                      <td data-label={t('aiTime')}>{new Date(chat.createdAt).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')}</td>
+                      <td data-label={t('users')}>{chat.actorId?.name || chat.actorId?.email || chat.actorId?.username || t('aiUnknown')}</td>
+                      <td data-label={t('buildings')}>{chat.buildingId?.number || '-'}{chat.buildingId?.address ? ` - ${chat.buildingId.address}` : ''}</td>
+                      <td data-label={t('aiPrompt')} className="chat-cell">{chat.question}</td>
+                      <td data-label={t('aiResponse')} className="chat-cell">{chat.answer}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="ai-pagination">
+              <button className="btn btn-secondary btn-small" disabled={chatPage <= 1} onClick={() => setChatPage((p) => Math.max(1, p - 1))}>
+                {t('previous')}
+              </button>
+              <span className="ai-pagination-text">{t('page')} {chatPage} / {totalChatPages}</span>
+              <button className="btn btn-secondary btn-small" disabled={chatPage >= totalChatPages} onClick={() => setChatPage((p) => Math.min(totalChatPages, p + 1))}>
+                {t('next')}
+              </button>
+            </div>
+          </>
         )}
       </div>
     </div>
