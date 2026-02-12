@@ -290,6 +290,30 @@ body.theme-dark .admin-user-management .modal-header {
   background: #0b1220;
 }
 
+/* Dark mode - keep receipt preview text readable on white paper */
+body.theme-dark .receipt,
+body.theme-dark .receipt * {
+  color: #111827;
+}
+
+body.theme-dark .receipt {
+  background: #ffffff;
+  border-color: #111827;
+}
+
+body.theme-dark .receipt-title {
+  color: #111827;
+  border-bottom-color: #111827;
+}
+
+body.theme-dark .receipt-line .value,
+body.theme-dark .receipt .dotted-value,
+body.theme-dark .receipt .dots,
+body.theme-dark .receipt .signature-line {
+  color: #111827;
+  border-color: #111827;
+}
+
 
 .app {
   max-width: 1200px;
