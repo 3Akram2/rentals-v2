@@ -3,6 +3,13 @@ import { ClsService } from 'nestjs-cls';
 import { AuditEventRepo } from './audit-event.repo';
 import { AuditLogInput } from './audit.types';
 
+type ListEventsFilter = {
+    page: number;
+    pageSize: number;
+    eventType?: string;
+    status?: 'success' | 'fail';
+};
+
 @Injectable()
 export class AuditService {
     constructor(
@@ -42,6 +49,28 @@ export class AuditService {
             changes: input.changes,
             meta: input.meta,
         } as any);
+    }
+
+    async listEvents(filter: ListEventsFilter) {
+        const query: any = {};
+        if (filter.eventType) query.eventType = filter.eventType;
+        if (filter.status) query['action.status'] = filter.status;
+
+        const [data, total] = await Promise.all([
+            this.auditRepo.findAll(query, {
+                sort: { ts: -1 },
+                skip: (filter.page - 1) * filter.pageSize,
+                limit: filter.pageSize,
+            }),
+            this.auditRepo.count(query),
+        ]);
+
+        return {
+            page: filter.page,
+            pageSize: filter.pageSize,
+            total: total.total,
+            data,
+        };
     }
 
     private detectDeviceType(ua: string): 'desktop' | 'mobile' | 'tablet' | 'bot' | 'unknown' {
