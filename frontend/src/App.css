@@ -1569,6 +1569,19 @@ td.no-print {
   font-size: 0.9rem;
 }
 
+.action-success-toast {
+  position: sticky;
+  top: 8px;
+  z-index: 1201;
+  margin: 6px 0 12px;
+  background: #e8f7ec;
+  border: 1px solid #b9e5c3;
+  color: #1f7a34;
+  padding: 10px 12px;
+  border-radius: 10px;
+  font-weight: 600;
+}
+
 .no-data {
   text-align: center;
   color: #999;

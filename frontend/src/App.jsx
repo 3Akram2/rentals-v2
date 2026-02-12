@@ -35,6 +35,7 @@ function App() {
   const [loading, setLoading] = useState(true);
   const [aiOpen, setAiOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
+  const [actionSuccess, setActionSuccess] = useState('');
 
   const canCreateBuilding = hasPermission('building@create');
   const canUpdateBuilding = hasPermission('building@update');
@@ -63,6 +64,11 @@ function App() {
     window.addEventListener('resize', onResize);
     return () => window.removeEventListener('resize', onResize);
   }, []);
+
+  function showSuccess(message) {
+    setActionSuccess(message);
+    setTimeout(() => setActionSuccess(''), 2200);
+  }
 
   function handleNavigate(view) {
     setCurrentView(view);
@@ -121,6 +127,7 @@ function App() {
     }
     loadBuildings();
     closeModal();
+    showSuccess(modal.data ? 'Building updated successfully' : 'Building created successfully');
   }
 
   async function handleDeleteBuilding(id) {
@@ -132,6 +139,7 @@ function App() {
         setProperties([]);
       }
       loadBuildings();
+      showSuccess('Building deleted successfully');
     }
   }
 
@@ -153,6 +161,7 @@ function App() {
 
     loadProperties(selectedBuilding._id);
     closeModal();
+    showSuccess(modal.data ? 'Property updated successfully' : 'Property created successfully');
   }
 
   async function handleDeleteProperty(id) {
@@ -160,6 +169,7 @@ function App() {
     if (confirm(t('deleteProperty'))) {
       await api.deleteProperty(id);
       loadProperties(selectedBuilding._id);
+      showSuccess('Property deleted successfully');
     }
   }
 
@@ -167,6 +177,7 @@ function App() {
     if (!canCreatePayment) return;
     await api.createPayment({ ...data, propertyId: modal.data._id });
     closeModal();
+    showSuccess('Payment recorded successfully');
   }
 
   async function handleSaveBulkPayments(payments) {
@@ -175,12 +186,14 @@ function App() {
       await api.createPayment({ ...payment, propertyId: modal.data._id });
     }
     closeModal();
+    showSuccess('Payments recorded successfully');
   }
 
   async function handleUpdatePayment(paymentId, data) {
     if (!canUpdatePayment) return;
     await api.updatePayment(paymentId, data);
     closeModal();
+    showSuccess('Payment updated successfully');
   }
 
   async function handleSaveOwnership(data) {
@@ -188,6 +201,7 @@ function App() {
     await api.updateBuilding(modal.data._id, data);
     loadBuildings();
     closeModal();
+    showSuccess('Ownership updated successfully');
   }
 
   return (
@@ -205,6 +219,8 @@ function App() {
             <span>{t('appTitle')}</span>
           </h1>
         </header>
+
+        {actionSuccess && <div className="action-success-toast">{actionSuccess}</div>}
 
       {currentView === 'profile' ? (
         <ProfilePage />
