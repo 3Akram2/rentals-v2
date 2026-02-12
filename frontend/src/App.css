@@ -219,6 +219,27 @@ body.theme-dark .ai-dashboard .stat-value {
   font-weight: 700;
 }
 
+/* Dark mode - AI chats table uniform color */
+body.theme-dark .ai-dashboard .table-wrapper {
+  background: #0b1220;
+  border-color: #334155;
+}
+
+body.theme-dark .ai-dashboard .ai-table {
+  background: #0b1220;
+  color: #e5e7eb;
+}
+
+body.theme-dark .ai-dashboard .ai-table thead th,
+body.theme-dark .ai-dashboard .ai-table tbody td,
+body.theme-dark .ai-dashboard .ai-table tbody tr,
+body.theme-dark .ai-dashboard .ai-table tbody tr:nth-child(even),
+body.theme-dark .ai-dashboard .ai-table tbody tr:hover {
+  background: #0b1220 !important;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+
 
 .app {
   max-width: 1200px;
