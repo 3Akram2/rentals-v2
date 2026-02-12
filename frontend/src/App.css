@@ -211,12 +211,22 @@ body.theme-dark .ai-dashboard .stat {
 
 body.theme-dark .ai-dashboard .stat {
   background: #0f172a;
-  border-color: #334155;
+  border-color: #6d4aa3;
+  color: #c4b5fd;
 }
 
 body.theme-dark .ai-dashboard .stat-value {
-  color: #c4b5fd;
+  color: #d8b4fe;
   font-weight: 700;
+}
+
+/* Dark mode - global stat numbers (building apartments/stores + dashboard) */
+body.theme-dark .stats .stat {
+  color: #c4b5fd;
+}
+
+body.theme-dark .stats .stat-value {
+  color: #d8b4fe;
 }
 
 /* Dark mode - AI chats table uniform color */
