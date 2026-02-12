@@ -109,9 +109,17 @@ function BuildingAiAssistant({ building, visible, onClose }) {
 
         <div className="ai-assistant-messages">
           {messages.length === 0 && (
-            <div className="ai-assistant-empty">
-              Ask about units, renters, and payment records for current + previous year.
-            </div>
+            <>
+              <div className="ai-message ai ai-welcome">
+                <div className="ai-message-text">Hi, how can I help you today?</div>
+              </div>
+              <div className="ai-message ai ai-welcome">
+                <div className="ai-message-text">Hi there! How could I assist you today?</div>
+              </div>
+              <div className="ai-assistant-empty">
+                Ask about units, renters, and payment records for current + previous year.
+              </div>
+            </>
           )}
 
           {messages.map((msg) => (
