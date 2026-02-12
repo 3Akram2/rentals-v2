@@ -109,22 +109,12 @@ function PropertyList({
                   {t('blankReceipt')}
                 </button>
                 {canUpdateProperty && (
-                  <button
-                    className="btn btn-secondary btn-small"
-                    onClick={() => {
-                      if (window.confirm(`Confirm ${t('edit')}?`)) onEdit(property);
-                    }}
-                  >
+                  <button className="btn btn-secondary btn-small" onClick={() => onEdit(property)}>
                     {t('edit')}
                   </button>
                 )}
                 {canDeleteProperty && (
-                  <button
-                    className="btn btn-danger btn-small"
-                    onClick={() => {
-                      if (window.confirm(t('deleteProperty'))) onDelete(property._id);
-                    }}
-                  >
+                  <button className="btn btn-danger btn-small" onClick={() => onDelete(property._id)}>
                     {t('delete')}
                   </button>
                 )}
