@@ -112,6 +112,43 @@ body.theme-dark .btn-secondary:hover:not(:disabled) {
   background: #334155;
 }
 
+/* Dark mode table consistency */
+body.theme-dark .report-table,
+body.theme-dark .division-table,
+body.theme-dark .members-table,
+body.theme-dark .buildings-table,
+body.theme-dark .expense-table,
+body.theme-dark .payout-table,
+body.theme-dark .report-table tbody tr,
+body.theme-dark .division-table tbody tr,
+body.theme-dark .members-table tbody tr,
+body.theme-dark .buildings-table tbody tr,
+body.theme-dark .expense-table tbody tr,
+body.theme-dark .payout-table tbody tr,
+body.theme-dark .report-table td,
+body.theme-dark .division-table td,
+body.theme-dark .members-table td,
+body.theme-dark .buildings-table td,
+body.theme-dark .expense-table td,
+body.theme-dark .payout-table td,
+body.theme-dark .report-table .subtotal-row,
+body.theme-dark .report-table .total-row,
+body.theme-dark .report-table .total-cell,
+body.theme-dark .division-table .total-row,
+body.theme-dark .members-table .total-row,
+body.theme-dark .buildings-table .total-row {
+  background: #0b1220 !important;
+  color: #e5e7eb;
+}
+
+body.theme-dark .report-header {
+  background: #111827;
+}
+
+body.theme-dark .app-title-logo {
+  background: #1f2937;
+}
+
 
 .app {
   max-width: 1200px;
@@ -3007,6 +3044,10 @@ td.no-print {
     z-index: 6;
     background: #fff;
     padding-top: 6px;
+  }
+
+  body.theme-dark .report-header {
+    background: #111827;
   }
 
   .report-header h3 {
