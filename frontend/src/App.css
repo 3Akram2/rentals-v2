@@ -211,22 +211,22 @@ body.theme-dark .ai-dashboard .stat {
 
 body.theme-dark .ai-dashboard .stat {
   background: #0f172a;
-  border-color: #6d4aa3;
-  color: #c4b5fd;
+  border-color: #1d4ed8;
+  color: #93c5fd;
 }
 
 body.theme-dark .ai-dashboard .stat-value {
-  color: #d8b4fe;
+  color: #60a5fa;
   font-weight: 700;
 }
 
 /* Dark mode - global stat numbers (building apartments/stores + dashboard) */
 body.theme-dark .stats .stat {
-  color: #c4b5fd;
+  color: #93c5fd;
 }
 
 body.theme-dark .stats .stat-value {
-  color: #d8b4fe;
+  color: #60a5fa;
 }
 
 /* Dark mode - AI chats table uniform color */
