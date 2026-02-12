@@ -3723,6 +3723,13 @@ td.no-print {
   cursor: pointer;
   z-index: 1200;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.building-ai-fab-mobile-icon {
+  display: none;
 }
 
 .building-ai-fab:hover {
@@ -3743,11 +3750,14 @@ td.no-print {
 .ai-assistant-panel {
   width: min(560px, 96vw);
   height: 100vh;
+  height: 100dvh;
+  max-height: 100dvh;
   background: linear-gradient(180deg, #f8fbff 0%, #ffffff 34%);
   border-left: 1px solid #d6e4f3;
   display: flex;
   flex-direction: column;
   box-shadow: -10px 0 30px rgba(0, 0, 0, 0.12);
+  overflow: hidden;
 }
 
 .ai-assistant-header {
@@ -3833,6 +3843,8 @@ td.no-print {
   flex-direction: column;
   gap: 10px;
   background: #fbfdff;
+  position: sticky;
+  bottom: 0;
 }
 
 .ai-assistant-input-row .form-control {
@@ -3952,7 +3964,7 @@ td.no-print {
 
 @media (max-width: 900px) {
   .building-ai-fab {
-    bottom: 16px;
+    bottom: calc(16px + env(safe-area-inset-bottom));
     right: 12px;
     min-width: 138px;
     height: 44px;
@@ -3997,11 +4009,11 @@ td.no-print {
   .ai-assistant-input-row {
     padding: 10px;
     gap: 8px;
-    padding-bottom: calc(10px + env(safe-area-inset-bottom));
+    padding-bottom: calc(12px + env(safe-area-inset-bottom) + 42px);
   }
 
   .ai-assistant-input-row .form-control {
-    min-height: 86px;
+    min-height: 72px;
     font-size: 16px; /* prevent iOS zoom */
   }
 
@@ -4012,16 +4024,31 @@ td.no-print {
 
 @media (max-width: 520px) {
   .building-ai-fab {
-    left: 12px;
+    left: auto;
     right: 12px;
-    width: auto;
-    min-width: 0;
+    bottom: calc(12px + env(safe-area-inset-bottom));
+    width: 52px;
+    min-width: 52px;
+    height: 52px;
+    padding: 0;
+    border-radius: 999px;
     justify-content: center;
+    font-size: 1.2rem;
+  }
+
+  .building-ai-fab-label {
+    display: none;
+  }
+
+  .building-ai-fab-mobile-icon {
+    display: inline-block;
+    font-weight: 800;
+    line-height: 1;
   }
 
   [dir="rtl"] .building-ai-fab {
+    right: auto;
     left: 12px;
-    right: 12px;
   }
 
   .ai-assistant-head-actions {
