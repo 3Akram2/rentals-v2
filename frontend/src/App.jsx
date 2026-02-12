@@ -209,7 +209,7 @@ function App() {
       <Sidebar
         onNavigate={handleNavigate}
         currentView={currentView}
-        hidden={isMobile && (Boolean(modal.type) || aiOpen || currentView !== 'buildings')}
+        hidden={isMobile && (Boolean(modal.type) || aiOpen)}
       />
 
       <div className="app">
