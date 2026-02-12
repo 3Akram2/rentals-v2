@@ -291,6 +291,8 @@ export const translations = {
     aiCreatePromptFailed: 'Failed to create prompt',
     aiActivatePromptFailed: 'Failed to activate prompt',
     aiUpdatePromptFailed: 'Failed to update prompt',
+    aiWelcomeMessage: 'Hi, how can I help you today?',
+    aiAssistantHint: 'Ask about units, renters, and payment records for current + previous year.',
 
     // Profile
     profile: 'Profile',
@@ -597,6 +599,8 @@ export const translations = {
     aiCreatePromptFailed: 'فشل إنشاء التوجيه',
     aiActivatePromptFailed: 'فشل تفعيل التوجيه',
     aiUpdatePromptFailed: 'فشل تحديث التوجيه',
+    aiWelcomeMessage: 'مرحبًا، كيف يمكنني مساعدتك اليوم؟',
+    aiAssistantHint: 'اسأل عن الوحدات والمستأجرين وسجلات المدفوعات للسنة الحالية والسابقة.',
 
     // Profile
     profile: 'الملف الشخصي',

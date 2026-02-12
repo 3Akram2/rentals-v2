@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
+import { useLang } from '../context/LanguageContext';
 import * as api from '../api';
 
 function BuildingAiAssistant({ building, visible, onClose }) {
+  const { t } = useLang();
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -111,13 +113,10 @@ function BuildingAiAssistant({ building, visible, onClose }) {
           {messages.length === 0 && (
             <>
               <div className="ai-message ai ai-welcome">
-                <div className="ai-message-text">Hi, how can I help you today?</div>
-              </div>
-              <div className="ai-message ai ai-welcome">
-                <div className="ai-message-text">Hi there! How could I assist you today?</div>
+                <div className="ai-message-text">{t('aiWelcomeMessage')}</div>
               </div>
               <div className="ai-assistant-empty">
-                Ask about units, renters, and payment records for current + previous year.
+                {t('aiAssistantHint')}
               </div>
             </>
           )}

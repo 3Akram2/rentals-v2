@@ -144,9 +144,9 @@ body.theme-dark .ai-assistant-empty {
 }
 
 body.theme-dark .ai-message.ai {
-  background: #0f172a;
-  border-color: #334155;
-  color: #e5e7eb;
+  background: #2a1748;
+  border-color: #6d4aa3;
+  color: #f3e8ff;
 }
 
 body.theme-dark .ai-message.user {
@@ -4130,8 +4130,9 @@ td.no-print {
 
 .ai-message.ai {
   align-self: flex-start;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: linear-gradient(180deg, #f1ecff 0%, #ece4ff 100%);
+  border: 1px solid #d8c8ff;
+  color: #2f1b55;
 }
 
 .ai-message-text {
