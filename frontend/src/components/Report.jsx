@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { getYearlyReport, createExpense, deleteExpense } from '../api';
 import NumberInput from './NumberInput';
+import DialogCloseButton from './DialogCloseButton';
 import { formatNumber } from '../utils/numberToArabicWords';
 
 function Report({ building, onClose, canManageExpenses = false }) {
@@ -276,10 +277,7 @@ function Report({ building, onClose, canManageExpenses = false }) {
           {!loading && report && (
             <button className="btn btn-primary" onClick={handlePrint}>{t('print')}</button>
           )}
-          <button className="btn btn-secondary dialog-header-close" onClick={onClose} aria-label={t('close')} title={t('close')}>
-            <span className="close-text">{t('close')}</span>
-            <span className="close-icon">×</span>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
       </div>
 

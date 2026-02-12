@@ -18,6 +18,7 @@ import GroupDetailsReport from './components/GroupDetailsReport';
 import UserManagement from './components/UserManagement';
 import UserReport from './components/UserReport';
 import PayoutReport from './components/PayoutReport';
+import ReportModal from './components/ReportModal';
 import AdminUserManagement from './components/AdminUserManagement';
 import ProfilePage from './components/ProfilePage';
 import BuildingAiAssistant from './components/BuildingAiAssistant';
@@ -36,11 +37,12 @@ function App() {
   const [aiOpen, setAiOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const [actionSuccess, setActionSuccess] = useState('');
+  const successToastTimeout = useRef(null);
   const confirmResolveRef = useRef(null);
   const [confirmDialog, setConfirmDialog] = useState({
     open: false,
     message: '',
-    confirmLabel: 'Confirm',
+    confirmLabel: t('confirm'),
     danger: true,
   });
 
@@ -72,18 +74,39 @@ function App() {
     return () => window.removeEventListener('resize', onResize);
   }, []);
 
+  useEffect(() => {
+    return () => {
+      if (confirmResolveRef.current) {
+        confirmResolveRef.current(false);
+        confirmResolveRef.current = null;
+      }
+      if (successToastTimeout.current) {
+        clearTimeout(successToastTimeout.current);
+        successToastTimeout.current = null;
+      }
+    };
+  }, []);
+
   function showSuccess(message) {
+    const SUCCESS_TOAST_DURATION_MS = 2200;
+    if (successToastTimeout.current) {
+      clearTimeout(successToastTimeout.current);
+    }
+
     setActionSuccess(message);
-    setTimeout(() => setActionSuccess(''), 2200);
+    successToastTimeout.current = setTimeout(() => {
+      setActionSuccess('');
+      successToastTimeout.current = null;
+    }, SUCCESS_TOAST_DURATION_MS);
   }
 
-  function askConfirm(message, confirmLabel = 'Confirm', danger = true) {
+  function askConfirm(message, confirmLabel, danger = true) {
     return new Promise((resolve) => {
       confirmResolveRef.current = resolve;
       setConfirmDialog({
         open: true,
         message,
-        confirmLabel,
+        confirmLabel: confirmLabel || t('confirm'),
         danger,
       });
     });
@@ -156,7 +179,7 @@ function App() {
     }
     loadBuildings();
     closeModal();
-    showSuccess(modal.data ? 'Building updated successfully' : 'Building created successfully');
+    showSuccess(modal.data ? t('buildingUpdatedSuccessfully') : t('buildingCreatedSuccessfully'));
   }
 
   async function handleDeleteBuilding(id) {
@@ -170,7 +193,7 @@ function App() {
       setProperties([]);
     }
     loadBuildings();
-    showSuccess('Building deleted successfully');
+    showSuccess(t('buildingDeletedSuccessfully'));
   }
 
   async function handleSaveProperty(data) {
@@ -193,7 +216,7 @@ function App() {
 
     loadProperties(selectedBuilding._id);
     closeModal();
-    showSuccess(modal.data ? 'Property updated successfully' : 'Property created successfully');
+    showSuccess(modal.data ? t('propertyUpdatedSuccessfully') : t('propertyCreatedSuccessfully'));
   }
 
   async function handleDeleteProperty(id) {
@@ -203,14 +226,14 @@ function App() {
 
     await api.deleteProperty(id);
     loadProperties(selectedBuilding._id);
-    showSuccess('Property deleted successfully');
+    showSuccess(t('propertyDeletedSuccessfully'));
   }
 
   async function handleSavePayment(data) {
     if (!canCreatePayment) return;
     await api.createPayment({ ...data, propertyId: modal.data._id });
     closeModal();
-    showSuccess('Payment recorded successfully');
+    showSuccess(t('paymentRecordedSuccessfully'));
   }
 
   async function handleSaveBulkPayments(payments) {
@@ -219,7 +242,7 @@ function App() {
       await api.createPayment({ ...payment, propertyId: modal.data._id });
     }
     closeModal();
-    showSuccess('Payments recorded successfully');
+    showSuccess(t('paymentsRecordedSuccessfully'));
   }
 
   async function handleUpdatePayment(paymentId, data) {
@@ -229,7 +252,7 @@ function App() {
 
     await api.updatePayment(paymentId, data);
     closeModal();
-    showSuccess('Payment updated successfully');
+    showSuccess(t('paymentUpdatedSuccessfully'));
   }
 
   async function handleSaveOwnership(data) {
@@ -237,7 +260,7 @@ function App() {
     await api.updateBuilding(modal.data._id, data);
     loadBuildings();
     closeModal();
-    showSuccess('Ownership updated successfully');
+    showSuccess(t('ownershipUpdatedSuccessfully'));
   }
 
   return (
@@ -429,15 +452,13 @@ function App() {
       )}
 
       {modal.type === 'report' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <Report
-              building={modal.data}
-              onClose={closeModal}
-              canManageExpenses={hasPermission('expense@create') || hasPermission('expense@delete')}
-            />
-          </div>
-        </div>
+        <ReportModal onClose={closeModal}>
+          <Report
+            building={modal.data}
+            onClose={closeModal}
+            canManageExpenses={hasPermission('expense@create') || hasPermission('expense@delete')}
+          />
+        </ReportModal>
       )}
 
       {modal.type === 'receipt' && (
@@ -480,49 +501,43 @@ function App() {
       )}
 
       {modal.type === 'division' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <OwnershipReport
-              building={modal.data}
-              onClose={closeModal}
-              onViewGroupDetails={(group, groupShare, year, expenses) => {
-                openModal('groupDetails', { building: modal.data, group, groupShare, year, expenses });
-              }}
-            />
-          </div>
-        </div>
+        <ReportModal onClose={closeModal}>
+          <OwnershipReport
+            building={modal.data}
+            onClose={closeModal}
+            onViewGroupDetails={(group, groupShare, year, expenses) => {
+              openModal('groupDetails', { building: modal.data, group, groupShare, year, expenses });
+            }}
+          />
+        </ReportModal>
       )}
 
       {modal.type === 'groupDetails' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <GroupDetailsReport
-              group={modal.data.group}
-              groupShare={modal.data.groupShare}
-              year={modal.data.year}
-              buildingId={modal.data.building._id}
-              buildingNumber={modal.data.building.number}
-              totalKirats={modal.data.building.totalKirats || 24}
-              expenses={modal.data.expenses || []}
-              onExpenseChange={() => {
-                // Go back to division view to refresh data
-                openModal('division', modal.data.building);
-              }}
-              onClose={closeModal}
-            />
-          </div>
-        </div>
+        <ReportModal onClose={closeModal}>
+          <GroupDetailsReport
+            group={modal.data.group}
+            groupShare={modal.data.groupShare}
+            year={modal.data.year}
+            buildingId={modal.data.building._id}
+            buildingNumber={modal.data.building.number}
+            totalKirats={modal.data.building.totalKirats || 24}
+            expenses={modal.data.expenses || []}
+            onExpenseChange={() => {
+              // Go back to division view to refresh data
+              openModal('division', modal.data.building);
+            }}
+            onClose={closeModal}
+          />
+        </ReportModal>
       )}
 
       {modal.type === 'userReport' && (
-        <div className="modal-overlay" onClick={closeModal}>
-          <div className="report-modal" onClick={e => e.stopPropagation()}>
-            <UserReport
-              user={modal.data}
-              onClose={closeModal}
-            />
-          </div>
-        </div>
+        <ReportModal onClose={closeModal}>
+          <UserReport
+            user={modal.data}
+            onClose={closeModal}
+          />
+        </ReportModal>
       )}
 
       {confirmDialog.open && (

@@ -3,6 +3,7 @@ import html2pdf from 'html2pdf.js';
 import { useLang } from '../context/LanguageContext';
 import { getUserReport } from '../api';
 import { formatNumber } from '../utils/numberToArabicWords';
+import DialogCloseButton from './DialogCloseButton';
 
 function UserReport({ user, onClose }) {
   const { t, isRtl } = useLang();
@@ -193,10 +194,7 @@ function UserReport({ user, onClose }) {
               <button className="btn btn-primary" onClick={handlePrint}>{t('print')}</button>
             </>
           )}
-          <button className="btn btn-secondary dialog-header-close" onClick={onClose} aria-label={t('close')} title={t('close')}>
-            <span className="close-text">{t('close')}</span>
-            <span className="close-icon">×</span>
-          </button>
+          <DialogCloseButton onClick={onClose} />
         </div>
       </div>
 
