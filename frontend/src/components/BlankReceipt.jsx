@@ -1,8 +1,11 @@
 import { useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 
 function BlankReceipt({ property, building, onClose }) {
   const { t, isRtl } = useLang();
+  const { user } = useAuth();
+  const receiverDisplayName = user?.name || t('receiverName');
   const printRef = useRef();
 
   function handlePrint() {
@@ -115,7 +118,7 @@ function BlankReceipt({ property, building, onClose }) {
               {t('receiptDate')}: <span className="dots">..../..../........</span>
             </div>
             <div className="footer-row">
-              {t('receiver')}: {t('receiverName')}
+              {t('receiver')}: {receiverDisplayName}
             </div>
             <div className="signature-area">
               {t('theSignature')}: <span className="signature-line"></span>

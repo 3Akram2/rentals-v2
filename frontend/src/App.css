@@ -240,6 +240,56 @@ body.theme-dark .ai-dashboard .ai-table tbody tr:hover {
   border-color: #334155;
 }
 
+/* Dark mode - payout owner selection/readability */
+body.theme-dark .users-selection,
+body.theme-dark .payout-results {
+  background: #0b1220;
+  border: 1px solid #334155;
+}
+
+body.theme-dark .users-selection h4 {
+  color: #e5e7eb;
+  border-bottom-color: #334155;
+}
+
+body.theme-dark .user-checkbox {
+  background: #111827;
+  border-color: #1f2937;
+}
+
+body.theme-dark .user-checkbox:hover {
+  background: #1f2937;
+}
+
+body.theme-dark .user-checkbox.selected {
+  background: #1b2a43;
+  border-color: #3b82f6;
+}
+
+body.theme-dark .user-checkbox .user-name {
+  color: #f8fafc;
+}
+
+body.theme-dark .user-checkbox .user-buildings {
+  color: #cbd5e1;
+}
+
+/* Dark mode - admin users readability */
+body.theme-dark .admin-user-management .user-card {
+  background: #0b1220;
+  border: 1px solid #1f2937;
+}
+
+body.theme-dark .admin-user-management .user-info strong,
+body.theme-dark .admin-user-management .user-phone,
+body.theme-dark .admin-user-management .user-notes {
+  color: #e5e7eb;
+}
+
+body.theme-dark .admin-user-management .modal-header {
+  background: #0b1220;
+}
+
 
 .app {
   max-width: 1200px;

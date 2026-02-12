@@ -1,10 +1,13 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
+import { useAuth } from '../context/AuthContext';
 import { getPayments } from '../api';
 import { numberToArabicWords, numberToEnglishWords } from '../utils/numberToArabicWords';
 
 function Receipt({ property, building, onClose }) {
   const { t, lang, monthsFull, isRtl } = useLang();
+  const { user } = useAuth();
+  const receiverDisplayName = user?.name || t('receiverName');
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [receiptDate, setReceiptDate] = useState(() => {
@@ -175,7 +178,7 @@ function Receipt({ property, building, onClose }) {
                   {t('receiptDate')}: {formatDate()}
                 </div>
                 <div className="footer-row">
-                  {t('receiver')}: {t('receiverName')}
+                  {t('receiver')}: {receiverDisplayName}
                 </div>
                 <div className="signature-area">
                   {t('theSignature')}: <span className="signature-line"></span>
