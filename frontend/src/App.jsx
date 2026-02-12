@@ -446,6 +446,7 @@ function App() {
               property={modal.data}
               onClose={closeModal}
               onEdit={(payment) => openModal('editPayment', { property: modal.data, payment })}
+              onConfirmDelete={() => askConfirm(t('confirmDeletePayment'), t('delete'), true)}
             />
           </div>
         </div>

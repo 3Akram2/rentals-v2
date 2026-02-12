@@ -3,7 +3,7 @@ import { useLang } from '../context/LanguageContext';
 import { getPaymentsByYear, deletePayment } from '../api';
 import { formatNumber } from '../utils/numberToArabicWords';
 
-function PaymentHistory({ property, onClose, onEdit }) {
+function PaymentHistory({ property, onClose, onEdit, onConfirmDelete }) {
   const { t, monthsShort } = useLang();
   const [year, setYear] = useState(new Date().getFullYear());
   const [payments, setPayments] = useState([]);
@@ -26,7 +26,8 @@ function PaymentHistory({ property, onClose, onEdit }) {
   });
 
   async function handleDeletePayment(paymentId) {
-    if (!window.confirm(t('confirmDeletePayment'))) return;
+    const ok = onConfirmDelete ? await onConfirmDelete() : window.confirm(t('confirmDeletePayment'));
+    if (!ok) return;
     await deletePayment(paymentId);
     loadPayments();
   }
