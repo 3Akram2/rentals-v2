@@ -30,6 +30,7 @@ function App() {
   const { user, loading: authLoading, hasPermission } = useAuth();
   const [currentView, setCurrentView] = useState('buildings');
   const [buildings, setBuildings] = useState([]);
+  const [adminUsers, setAdminUsers] = useState([]);
   const [selectedBuilding, setSelectedBuilding] = useState(null);
   const [properties, setProperties] = useState([]);
   const [modal, setModal] = useState({ type: null, data: null });
@@ -131,9 +132,16 @@ function App() {
 
   async function loadBuildings() {
     setLoading(true);
-    const data = await api.getBuildings();
-    setBuildings(data);
-    setLoading(false);
+    try {
+      const [buildingsData, adminUsersData] = await Promise.all([
+        api.getBuildings(),
+        api.getAdminUsers().catch(() => []),
+      ]);
+      setBuildings(buildingsData);
+      setAdminUsers(Array.isArray(adminUsersData) ? adminUsersData : []);
+    } finally {
+      setLoading(false);
+    }
   }
 
   async function loadProperties(buildingId) {
@@ -390,6 +398,7 @@ function App() {
             <h3>{modal.data ? t('editBuilding') : t('addBuilding')}</h3>
             <BuildingForm
               building={modal.data}
+              adminUsers={adminUsers}
               onSave={handleSaveBuilding}
               onCancel={closeModal}
             />

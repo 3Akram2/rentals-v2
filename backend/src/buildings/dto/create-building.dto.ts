@@ -38,6 +38,9 @@ export class CreateBuildingDto {
 
     @IsOptional()
     @IsString()
+    moderatorAdminUserId?: string;
+    @IsOptional()
+    @IsString()
     address?: string;
 
     @IsOptional()

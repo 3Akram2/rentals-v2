@@ -1,11 +1,12 @@
 import { useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 
 function BlankReceipt({ property, building, onClose }) {
   const { t, isRtl } = useLang();
-  const { user } = useAuth();
-  const receiverDisplayName = user?.name || t('receiverName');
+  const receiverDisplayName =
+    (typeof building?.moderatorAdminUserId === 'object' && building?.moderatorAdminUserId?.name)
+      ? building.moderatorAdminUserId.name
+      : t('receiverName');
   const printRef = useRef();
 
   function handlePrint() {
