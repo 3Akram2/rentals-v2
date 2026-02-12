@@ -67,7 +67,7 @@ function ProfilePage() {
 
     try {
       const base64 = await resizeImage(file);
-      await api.updateAdminUser(user._id, { profileImage: base64 });
+      await api.updateMyProfile({ profileImage: base64 });
       await refreshUser();
       setSuccess(t('photoUpdated'));
     } catch (err) {
@@ -82,7 +82,7 @@ function ProfilePage() {
     setSuccess('');
     setPhotoLoading(true);
     try {
-      await api.updateAdminUser(user._id, { profileImage: '' });
+      await api.updateMyProfile({ profileImage: '' });
       await refreshUser();
       setSuccess(t('photoRemoved'));
     } catch (err) {
