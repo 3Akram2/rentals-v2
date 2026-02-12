@@ -198,6 +198,27 @@ body.theme-dark .app-title-logo {
   background: #1f2937;
 }
 
+/* Dark mode - AI dashboard readability */
+body.theme-dark .ai-dashboard .card {
+  background: #0b1220;
+  border-color: #1f2937;
+}
+
+body.theme-dark .ai-dashboard .card-title,
+body.theme-dark .ai-dashboard .stat {
+  color: #e5e7eb;
+}
+
+body.theme-dark .ai-dashboard .stat {
+  background: #0f172a;
+  border-color: #334155;
+}
+
+body.theme-dark .ai-dashboard .stat-value {
+  color: #c4b5fd;
+  font-weight: 700;
+}
+
 
 .app {
   max-width: 1200px;
