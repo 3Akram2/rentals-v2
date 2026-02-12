@@ -38,6 +38,8 @@ export class Building {
     @Prop({ required: true, trim: true })
     number: string;
 
+    @Prop({ type: MongooseSchema.Types.ObjectId, ref: 'User', default: null })
+    moderatorAdminUserId?: string;
     @Prop({ trim: true, default: '' })
     address: string;
 

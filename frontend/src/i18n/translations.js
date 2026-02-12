@@ -6,6 +6,8 @@ export const translations = {
     // Buildings
     buildings: 'Buildings',
     addBuilding: '+ Add Building',
+    buildingModerator: 'Building Moderator',
+    noModeratorAssigned: 'No moderator assigned',
     editBuilding: 'Edit Building',
     noBuildings: 'No buildings yet. Add your first building to get started.',
     buildingNumber: 'Building Number',
@@ -314,6 +316,8 @@ export const translations = {
     // Buildings
     buildings: 'المباني',
     addBuilding: '+ إضافة مبنى',
+    buildingModerator: 'مسؤول المبنى',
+    noModeratorAssigned: 'لم يتم تعيين مسؤول',
     editBuilding: 'تعديل المبنى',
     noBuildings: 'لا توجد مباني بعد. أضف أول مبنى للبدء.',
     buildingNumber: 'رقم العقار',

@@ -1,13 +1,14 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
-import { useAuth } from '../context/AuthContext';
 import { getPayments } from '../api';
 import { numberToArabicWords, numberToEnglishWords } from '../utils/numberToArabicWords';
 
 function Receipt({ property, building, onClose }) {
   const { t, lang, monthsFull, isRtl } = useLang();
-  const { user } = useAuth();
-  const receiverDisplayName = user?.name || t('receiverName');
+  const receiverDisplayName =
+    (typeof building?.moderatorAdminUserId === 'object' && building?.moderatorAdminUserId?.name)
+      ? building.moderatorAdminUserId.name
+      : t('receiverName');
   const [payments, setPayments] = useState([]);
   const [selectedPayment, setSelectedPayment] = useState(null);
   const [receiptDate, setReceiptDate] = useState(() => {

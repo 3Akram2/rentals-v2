@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, Inject, forwardRef } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, NotFoundException, Inject, forwardRef, BadRequestException } from '@nestjs/common';
 import { ApiTags } from '@nestjs/swagger';
 import { Endpoints } from 'src/shared/constants';
 import { BuildingsService } from './buildings.service';
@@ -26,14 +26,14 @@ export class BuildingsController {
     @AuthPermissions(Permissions.BuildingRead)
     async findAll(@CurrentUser() user: User) {
         const filter = await this.buildingAccessService.buildingFilter(user, '_id');
-        return this.buildingsService.findAll(filter);
+        return this.buildingsService.findAll(filter, { populate: 'moderatorAdminUserId' });
     }
 
     @Get(':id')
     @AuthPermissions(Permissions.BuildingRead)
     async findOne(@Param('id') id: string, @CurrentUser() user: User) {
         await this.buildingAccessService.assertBuildingAccess(user, id);
-        const building = await this.buildingsService.findById(id);
+        const building = await this.buildingsService.findById(id, { populate: 'moderatorAdminUserId' });
         if (!building) throw new NotFoundException('Building not found');
         return building;
     }
@@ -48,6 +48,7 @@ export class BuildingsController {
     @Post()
     @AuthPermissions(Permissions.BuildingCreate)
     async create(@Body() data: CreateBuildingDto, @CurrentUser() user: User) {
+        await this.assertValidModerator(data?.moderatorAdminUserId);
         const building = await this.buildingsService.create(data as any);
 
         if (!(await this.buildingAccessService.isSuperAdmin(user))) {
@@ -66,10 +67,11 @@ export class BuildingsController {
     @AuthPermissions(Permissions.BuildingUpdate)
     async update(@Param('id') id: string, @Body() data: any, @CurrentUser() user: User) {
         await this.buildingAccessService.assertBuildingAccess(user, id);
+        await this.assertValidModerator(data?.moderatorAdminUserId);
         const result = await this.buildingsService.findOneAndUpdate(
             { _id: id },
             { $set: data },
-            { new: true },
+            { new: true, populate: 'moderatorAdminUserId' },
         );
         if (!result) throw new NotFoundException('Building not found');
         return result;
@@ -86,5 +88,13 @@ export class BuildingsController {
         const result = await this.buildingsService.deleteById(id);
         if (!result) throw new NotFoundException('Building not found');
         return { message: 'Building deleted successfully' };
+    }
+
+    private async assertValidModerator(moderatorAdminUserId?: string) {
+        if (!moderatorAdminUserId) return;
+        const moderator = await this.usersService.findById(moderatorAdminUserId);
+        if (!moderator || !(moderator as any).username || !(moderator as any).email) {
+            throw new BadRequestException('Moderator must be a valid admin user');
+        }
     }
 }
