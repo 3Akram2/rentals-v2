@@ -382,8 +382,8 @@ function App() {
             canCreatePayment={canCreatePayment}
           />
 
-          <button className="building-ai-fab" onClick={() => setAiOpen(true)} title="Open Building Copilot" aria-label="Open Building Copilot">
-            <span className="building-ai-fab-label">Building Copilot</span>
+          <button className="building-ai-fab" onClick={() => setAiOpen(true)} title={t('buildingCopilot')} aria-label={t('buildingCopilot')}>
+            <span className="building-ai-fab-label">{t('buildingCopilot')}</span>
             <span className="building-ai-fab-mobile-icon">?</span>
           </button>
 
