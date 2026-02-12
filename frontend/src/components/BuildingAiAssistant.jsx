@@ -47,12 +47,12 @@ function BuildingAiAssistant({ building, visible, onClose }) {
 
   async function animateAssistantText(messageId, fullText) {
     let idx = 0;
-    const step = 4;
+    const step = 3;
     while (idx < fullText.length) {
       idx = Math.min(fullText.length, idx + step);
       const partial = fullText.slice(0, idx);
       setMessages((prev) => prev.map((m) => (m.id === messageId ? { ...m, text: partial } : m)));
-      await new Promise((r) => setTimeout(r, 24));
+      await new Promise((r) => setTimeout(r, 30));
     }
   }
 
