@@ -357,3 +357,11 @@ export async function activateAiPrompt(id) {
   });
   return handleResponseOrThrow(res);
 }
+
+export async function deleteAiPrompt(id) {
+  const res = await fetch(`${API_BASE}/ai-dashboard/prompts/${id}`, {
+    method: 'DELETE',
+    headers: authHeaders(false)
+  });
+  return handleResponseOrThrow(res);
+}

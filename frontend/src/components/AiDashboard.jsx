@@ -77,6 +77,17 @@ function AiDashboard() {
     }
   }
 
+  async function handleDeletePrompt(item) {
+    const ok = window.confirm(t('confirmDeletePrompt'));
+    if (!ok) return;
+    try {
+      await api.deleteAiPrompt(item._id);
+      await load();
+    } catch (e) {
+      alert(e.message || t('aiDeletePromptFailed'));
+    }
+  }
+
   if (loading) return <div className="card"><div className="loading-text">{t('aiLoadingDashboard')}</div></div>;
   if (error) return <div className="card"><div className="error">{error}</div></div>;
 
@@ -138,6 +149,7 @@ function AiDashboard() {
                   {!p.active && (
                     <button className="btn btn-primary btn-small" onClick={() => handleActivatePrompt(p._id)}>{t('aiSetActive')}</button>
                   )}
+                  <button className="btn btn-danger btn-small" onClick={() => handleDeletePrompt(p)}>{t('delete')}</button>
                 </div>
               </div>
               <div className="ai-prompt-content">{p.content}</div>

@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
 import { CurrentUser } from 'src/app-auth/user.decorator';
 import { AuthPermissions } from 'src/app-auth/guards/app-permissions.guard';
 import { Permissions } from 'src/groups/enums/permissions.enum';
@@ -56,5 +56,12 @@ export class BuildingAiController {
     @AuthPermissions(Permissions.UserRead)
     async activatePrompt(@Param('id') id: string) {
         return this.buildingAiService.activatePrompt(id);
+    }
+
+    @Delete('ai-dashboard/prompts/:id')
+    @UseGuards(SuperAdminAccessGuard)
+    @AuthPermissions(Permissions.UserRead)
+    async deletePrompt(@Param('id') id: string) {
+        return this.buildingAiService.deletePrompt(id);
     }
 }
