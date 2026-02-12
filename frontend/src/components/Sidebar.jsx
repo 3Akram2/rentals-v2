@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
 
 function Sidebar({ onNavigate, currentView, hidden = false }) {
   const { t, lang, toggleLang, isRtl } = useLang();
   const { user, logout, hasPermission } = useAuth();
+  const { isDark, toggleTheme } = useTheme();
   const [expanded, setExpanded] = useState(false);
 
   const isSuperAdmin = (user?.groups || []).some((g) => (typeof g === 'string' ? g : g?.name) === 'SuperAdmin');
@@ -119,6 +121,14 @@ function Sidebar({ onNavigate, currentView, hidden = false }) {
           >
             <span className="sidebar-icon" aria-hidden="true">🌐</span>
             <span className="sidebar-label">{lang === 'en' ? 'العربية' : 'English'}</span>
+          </button>
+
+          <button
+            className="sidebar-item"
+            onClick={toggleTheme}
+          >
+            <span className="sidebar-icon" aria-hidden="true">{isDark ? '☀️' : '🌙'}</span>
+            <span className="sidebar-label">{isDark ? t('lightMode') : t('darkMode')}</span>
           </button>
 
           <button

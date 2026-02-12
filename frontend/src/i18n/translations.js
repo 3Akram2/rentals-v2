@@ -149,6 +149,8 @@ export const translations = {
     language: 'Language',
     english: 'English',
     arabic: 'Arabic',
+    darkMode: 'Dark Mode',
+    lightMode: 'Light Mode',
 
     // Ownership
     ownership: 'Ownership',
@@ -453,6 +455,8 @@ export const translations = {
     language: 'اللغة',
     english: 'الإنجليزية',
     arabic: 'العربية',
+    darkMode: 'الوضع الداكن',
+    lightMode: 'الوضع الفاتح',
 
     // Ownership
     ownership: 'الملكية',

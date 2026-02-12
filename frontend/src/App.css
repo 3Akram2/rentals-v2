@@ -11,6 +11,108 @@ body {
   line-height: 1.5;
 }
 
+/* Dark mode */
+body.theme-dark {
+  background: #0f172a;
+  color: #e5e7eb;
+}
+
+body.theme-dark .app {
+  background: transparent;
+}
+
+body.theme-dark header,
+body.theme-dark .card,
+body.theme-dark .modal,
+body.theme-dark .report-modal,
+body.theme-dark .confirm-modal,
+body.theme-dark .property-item,
+body.theme-dark .month-item,
+body.theme-dark .stat,
+body.theme-dark .user-report .summary-card,
+body.theme-dark .income-summary-box,
+body.theme-dark .group-summary-box {
+  background: #111827;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+
+body.theme-dark .card-title,
+body.theme-dark .card-subtitle,
+body.theme-dark .section-header h2,
+body.theme-dark h3,
+body.theme-dark h4,
+body.theme-dark label,
+body.theme-dark .profile-label,
+body.theme-dark .profile-value,
+body.theme-dark .property-details,
+body.theme-dark .month-name,
+body.theme-dark .summary-label,
+body.theme-dark .summary-value {
+  color: #e5e7eb;
+}
+
+body.theme-dark .form-control,
+body.theme-dark input,
+body.theme-dark select,
+body.theme-dark textarea {
+  background: #0b1220;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+
+body.theme-dark .form-control::placeholder,
+body.theme-dark input::placeholder,
+body.theme-dark textarea::placeholder {
+  color: #94a3b8;
+}
+
+body.theme-dark .table,
+body.theme-dark .report-table,
+body.theme-dark .division-table,
+body.theme-dark .members-table,
+body.theme-dark .buildings-table,
+body.theme-dark .expense-table,
+body.theme-dark .payout-table {
+  background: #111827;
+  color: #e5e7eb;
+}
+
+body.theme-dark .report-table th,
+body.theme-dark .division-table th,
+body.theme-dark .members-table th,
+body.theme-dark .buildings-table th,
+body.theme-dark .expense-table th,
+body.theme-dark .payout-table th {
+  background: #1f2937;
+}
+
+body.theme-dark .report-table td,
+body.theme-dark .division-table td,
+body.theme-dark .members-table td,
+body.theme-dark .buildings-table td,
+body.theme-dark .expense-table td,
+body.theme-dark .payout-table td {
+  border-color: #334155;
+}
+
+body.theme-dark .no-data,
+body.theme-dark .empty-state,
+body.theme-dark .loading-text {
+  color: #94a3b8;
+}
+
+body.theme-dark .btn-secondary {
+  background: #1f2937;
+  color: #e5e7eb;
+  border-color: #334155;
+}
+
+body.theme-dark .btn-secondary:hover:not(:disabled) {
+  background: #334155;
+}
+
+
 .app {
   max-width: 1200px;
   margin: 0 auto;
