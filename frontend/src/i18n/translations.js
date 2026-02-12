@@ -183,6 +183,10 @@ export const translations = {
     sharedExpenses: 'Shared Expenses',
     confirmDeletePayment: 'Delete this payment?',
     unitExists: 'A property with this unit number already exists in this building',
+    confirmAction: 'Please confirm',
+    confirmSaveBuildingChanges: 'Save building changes?',
+    confirmSavePropertyChanges: 'Save property changes?',
+    confirmSavePaymentChanges: 'Save payment changes?',
 
     // Users
     users: 'Users',
@@ -468,6 +472,10 @@ export const translations = {
     sharedExpenses: 'المصروفات المشتركة',
     confirmDeletePayment: 'حذف هذه الدفعة؟',
     unitExists: 'يوجد عقار بهذا الرقم في هذا المبنى',
+    confirmAction: 'يرجى التأكيد',
+    confirmSaveBuildingChanges: 'حفظ تعديلات المبنى؟',
+    confirmSavePropertyChanges: 'حفظ تعديلات العقار؟',
+    confirmSavePaymentChanges: 'حفظ تعديلات الدفعة؟',
 
     // Users
     users: 'المستخدمين',

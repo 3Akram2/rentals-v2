@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLang } from './context/LanguageContext';
 import { useAuth } from './context/AuthContext';
 import LoginPage from './components/LoginPage';
@@ -36,6 +36,13 @@ function App() {
   const [aiOpen, setAiOpen] = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 768);
   const [actionSuccess, setActionSuccess] = useState('');
+  const confirmResolveRef = useRef(null);
+  const [confirmDialog, setConfirmDialog] = useState({
+    open: false,
+    message: '',
+    confirmLabel: 'Confirm',
+    danger: true,
+  });
 
   const canCreateBuilding = hasPermission('building@create');
   const canUpdateBuilding = hasPermission('building@update');
@@ -68,6 +75,26 @@ function App() {
   function showSuccess(message) {
     setActionSuccess(message);
     setTimeout(() => setActionSuccess(''), 2200);
+  }
+
+  function askConfirm(message, confirmLabel = 'Confirm', danger = true) {
+    return new Promise((resolve) => {
+      confirmResolveRef.current = resolve;
+      setConfirmDialog({
+        open: true,
+        message,
+        confirmLabel,
+        danger,
+      });
+    });
+  }
+
+  function closeConfirm(result) {
+    if (confirmResolveRef.current) {
+      confirmResolveRef.current(result);
+      confirmResolveRef.current = null;
+    }
+    setConfirmDialog((prev) => ({ ...prev, open: false }));
   }
 
   function handleNavigate(view) {
@@ -121,6 +148,8 @@ function App() {
     if (!modal.data && !canCreateBuilding) return;
 
     if (modal.data) {
+      const ok = await askConfirm(t('confirmSaveBuildingChanges'), t('update'), false);
+      if (!ok) return;
       await api.updateBuilding(modal.data._id, data);
     } else {
       await api.createBuilding(data);
@@ -132,15 +161,16 @@ function App() {
 
   async function handleDeleteBuilding(id) {
     if (!canDeleteBuilding) return;
-    if (confirm(t('deleteBuilding'))) {
-      await api.deleteBuilding(id);
-      if (selectedBuilding?._id === id) {
-        setSelectedBuilding(null);
-        setProperties([]);
-      }
-      loadBuildings();
-      showSuccess('Building deleted successfully');
+    const ok = await askConfirm(t('deleteBuilding'), t('delete'), true);
+    if (!ok) return;
+
+    await api.deleteBuilding(id);
+    if (selectedBuilding?._id === id) {
+      setSelectedBuilding(null);
+      setProperties([]);
     }
+    loadBuildings();
+    showSuccess('Building deleted successfully');
   }
 
   async function handleSaveProperty(data) {
@@ -149,6 +179,8 @@ function App() {
 
     let result;
     if (modal.data) {
+      const ok = await askConfirm(t('confirmSavePropertyChanges'), t('update'), false);
+      if (!ok) return;
       result = await api.updateProperty(modal.data._id, data);
     } else {
       result = await api.createProperty({ ...data, buildingId: selectedBuilding._id });
@@ -166,11 +198,12 @@ function App() {
 
   async function handleDeleteProperty(id) {
     if (!canDeleteProperty) return;
-    if (confirm(t('deleteProperty'))) {
-      await api.deleteProperty(id);
-      loadProperties(selectedBuilding._id);
-      showSuccess('Property deleted successfully');
-    }
+    const ok = await askConfirm(t('deleteProperty'), t('delete'), true);
+    if (!ok) return;
+
+    await api.deleteProperty(id);
+    loadProperties(selectedBuilding._id);
+    showSuccess('Property deleted successfully');
   }
 
   async function handleSavePayment(data) {
@@ -191,6 +224,9 @@ function App() {
 
   async function handleUpdatePayment(paymentId, data) {
     if (!canUpdatePayment) return;
+    const ok = await askConfirm(t('confirmSavePaymentChanges'), t('update'), false);
+    if (!ok) return;
+
     await api.updatePayment(paymentId, data);
     closeModal();
     showSuccess('Payment updated successfully');
@@ -489,6 +525,24 @@ function App() {
               user={modal.data}
               onClose={closeModal}
             />
+          </div>
+        </div>
+      )}
+
+      {confirmDialog.open && (
+        <div className="modal-overlay" onClick={() => closeConfirm(false)}>
+          <div className="modal confirm-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="confirm-modal-title">{t('confirmAction')}</div>
+            <div className="confirm-modal-message">{confirmDialog.message}</div>
+            <div className="confirm-modal-actions">
+              <button className="btn btn-secondary" onClick={() => closeConfirm(false)}>{t('cancel')}</button>
+              <button
+                className={`btn ${confirmDialog.danger ? 'btn-danger' : 'btn-primary'}`}
+                onClick={() => closeConfirm(true)}
+              >
+                {confirmDialog.confirmLabel}
+              </button>
+            </div>
           </div>
         </div>
       )}

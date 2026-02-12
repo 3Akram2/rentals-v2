@@ -340,6 +340,41 @@ textarea.form-control,
   color: #2c3e50;
 }
 
+.confirm-modal {
+  width: min(420px, 92vw);
+  border-radius: 14px;
+  padding: 18px;
+}
+
+.confirm-modal-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #243447;
+  margin-bottom: 8px;
+}
+
+.confirm-modal-message {
+  color: #475467;
+  line-height: 1.45;
+  margin-bottom: 16px;
+}
+
+.confirm-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+@media (max-width: 560px) {
+  .confirm-modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .confirm-modal-actions .btn {
+    width: 100%;
+  }
+}
+
 /* Property List */
 .property-list {
   margin-top: 15px;
