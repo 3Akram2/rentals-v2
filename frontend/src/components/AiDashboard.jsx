@@ -85,7 +85,7 @@ function AiDashboard() {
 
   return (
     <div className="ai-dashboard" dir={isRtl ? 'rtl' : 'ltr'}>
-      <div className="card">
+      <div className="card ai-overview-card">
         <div className="card-title">{t('aiMonitoringDashboard')}</div>
         <div className="stats ai-stats-grid">
           <div className="stat"><span className="stat-value">{stats.buildings || 0}</span> {t('buildings')}</div>
@@ -96,7 +96,7 @@ function AiDashboard() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card ai-prompts-card">
         <div className="card-header" style={{ marginBottom: 10 }}>
           <div className="card-title">{t('aiPromptVersions')}</div>
           <button className="btn btn-secondary btn-small" onClick={load}>{t('refreshData')}</button>
@@ -147,7 +147,7 @@ function AiDashboard() {
         </div>
       </div>
 
-      <div className="card">
+      <div className="card ai-chats-card">
         <div className="card-header" style={{ marginBottom: 10 }}>
           <div className="card-title">{t('aiRecentChats')}</div>
           <button className="btn btn-secondary btn-small" onClick={load}>{t('refreshData')}</button>
@@ -170,11 +170,11 @@ function AiDashboard() {
               <tbody>
                 {chats.map((chat) => (
                   <tr key={chat._id}>
-                    <td>{new Date(chat.createdAt).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')}</td>
-                    <td>{chat.actorId?.name || chat.actorId?.email || chat.actorId?.username || t('aiUnknown')}</td>
-                    <td>{chat.buildingId?.number || '-'}{chat.buildingId?.address ? ` - ${chat.buildingId.address}` : ''}</td>
-                    <td className="chat-cell">{chat.question}</td>
-                    <td className="chat-cell">{chat.answer}</td>
+                    <td data-label={t('aiTime')}>{new Date(chat.createdAt).toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US')}</td>
+                    <td data-label={t('users')}>{chat.actorId?.name || chat.actorId?.email || chat.actorId?.username || t('aiUnknown')}</td>
+                    <td data-label={t('buildings')}>{chat.buildingId?.number || '-'}{chat.buildingId?.address ? ` - ${chat.buildingId.address}` : ''}</td>
+                    <td data-label={t('aiPrompt')} className="chat-cell">{chat.question}</td>
+                    <td data-label={t('aiResponse')} className="chat-cell">{chat.answer}</td>
                   </tr>
                 ))}
               </tbody>
