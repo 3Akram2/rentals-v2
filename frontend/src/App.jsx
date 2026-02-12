@@ -185,7 +185,11 @@ function App() {
 
   return (
     <div className="app-container">
-      <Sidebar onNavigate={handleNavigate} currentView={currentView} />
+      <Sidebar
+        onNavigate={handleNavigate}
+        currentView={currentView}
+        hidden={Boolean(modal.type) || aiOpen}
+      />
 
       <div className="app">
         <header>

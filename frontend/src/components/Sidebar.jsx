@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useLang } from '../context/LanguageContext';
 import { useAuth } from '../context/AuthContext';
 
-function Sidebar({ onNavigate, currentView }) {
+function Sidebar({ onNavigate, currentView, hidden = false }) {
   const { t, lang, toggleLang, isRtl } = useLang();
   const { user, logout, hasPermission } = useAuth();
   const [expanded, setExpanded] = useState(false);
@@ -28,6 +28,10 @@ function Sidebar({ onNavigate, currentView }) {
     return () => document.removeEventListener('keydown', handleEscape);
   }, [expanded]);
 
+  useEffect(() => {
+    if (hidden && expanded) setExpanded(false);
+  }, [hidden, expanded]);
+
   // Prevent body scroll when sidebar is open on mobile
   useEffect(() => {
     if (expanded) {
@@ -39,6 +43,8 @@ function Sidebar({ onNavigate, currentView }) {
       document.body.style.overflow = '';
     };
   }, [expanded]);
+
+  if (hidden) return null;
 
   return (
     <>
