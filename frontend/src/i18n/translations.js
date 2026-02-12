@@ -270,6 +270,7 @@ export const translations = {
 
     // AI Dashboard
     aiDashboard: 'AI Dashboard',
+    buildingCopilot: 'Building Copilot',
     aiMonitoringDashboard: 'AI Monitoring Dashboard',
     aiPromptVersions: 'Prompt Versions',
     aiRecentChats: 'Recent AI Chats',
@@ -582,6 +583,7 @@ export const translations = {
 
     // AI Dashboard
     aiDashboard: 'لوحة الذكاء الاصطناعي',
+    buildingCopilot: 'مساعد المبنى',
     aiMonitoringDashboard: 'لوحة متابعة الذكاء الاصطناعي',
     aiPromptVersions: 'إصدارات التوجيه',
     aiRecentChats: 'أحدث محادثات الذكاء الاصطناعي',
