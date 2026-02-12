@@ -3,7 +3,7 @@ import { useLang } from '../context/LanguageContext';
 import * as api from '../api';
 
 function BuildingAiAssistant({ building, visible, onClose }) {
-  const { t } = useLang();
+  const { t, lang } = useLang();
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -113,10 +113,10 @@ function BuildingAiAssistant({ building, visible, onClose }) {
           {messages.length === 0 && (
             <>
               <div className="ai-message ai ai-welcome">
-                <div className="ai-message-text">{t('aiWelcomeMessage')}</div>
+                <div className="ai-message-text">{lang === 'ar' ? 'مرحبًا، كيف يمكنني مساعدتك اليوم؟' : t('aiWelcomeMessage')}</div>
               </div>
               <div className="ai-assistant-empty">
-                {t('aiAssistantHint')}
+                {lang === 'ar' ? 'اسأل عن الوحدات والمستأجرين وسجلات المدفوعات للسنة الحالية والسابقة.' : t('aiAssistantHint')}
               </div>
             </>
           )}
