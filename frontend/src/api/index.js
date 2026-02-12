@@ -296,6 +296,15 @@ export async function changePassword(data) {
   return handleResponseOrThrow(res);
 }
 
+export async function updateMyProfile(data) {
+  const res = await fetch(`${API_BASE}/admin-users/me/profile`, {
+    method: 'PATCH',
+    headers: authHeaders(),
+    body: JSON.stringify(data)
+  });
+  return handleResponseOrThrow(res);
+}
+
 // Groups (for role selection)
 export async function getGroups() {
   const res = await fetch(`${API_BASE}/groups?$pageSize=100`, { headers: authHeaders(false) });

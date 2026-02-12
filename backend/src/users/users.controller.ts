@@ -111,6 +111,20 @@ export class UsersController extends AbstractController<User, UserDocument, User
         return this.getOrThrow404(this.service.updatePassword(user._id, data));
     }
 
+    @Patch('me/profile')
+    async updateMyProfile(@CurrentUser() user: User, @Body() data: { profileImage?: string; name?: string }) {
+        const updated = await this.getOrThrow404(
+            this.service.updateUser(
+                user._id,
+                new User({
+                    ...(typeof data?.profileImage === 'string' ? { profileImage: data.profileImage } : {}),
+                    ...(typeof data?.name === 'string' ? { name: data.name } : {}),
+                }),
+            ),
+        );
+        return this.service.sanitizeUserResponse(updated);
+    }
+
     @Patch(':id')
     @UseGuards(IsSuperAdminGuard)
     @AuthPermissions(Permissions.UserUpdate)
