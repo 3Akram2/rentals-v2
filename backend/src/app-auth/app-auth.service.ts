@@ -168,63 +168,11 @@ export class AppAuthService {
             },
         );
 
-        if (!user) {
-            void this.safeAuditLog({
-                eventType: 'auth.login.fail',
-                severity: 'warn',
-                actor: { email },
-                action: { module: 'auth', operation: 'login', status: 'fail', reason: 'wrongCredentials' },
-                http: { statusCode: 400 },
-                meta: { loginIdentifier: email },
-            });
-            throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
-        }
+        if (!user) throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
 
         const isValidPassword = await this.comparePassword(password, user.password);
-        if (!isValidPassword) {
-            void this.safeAuditLog({
-                eventType: 'auth.login.fail',
-                severity: 'warn',
-                actor: {
-                    userId: String((user as any)._id),
-                    email: (user as any).email,
-                    username: (user as any).username,
-                    name: (user as any).name,
-                },
-                action: { module: 'auth', operation: 'login', status: 'fail', reason: 'wrongCredentials' },
-                http: { statusCode: 400 },
-            });
-            throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
-        }
-        if (!(await this.isUserEnabled(user))) {
-            void this.safeAuditLog({
-                eventType: 'auth.login.fail',
-                severity: 'warn',
-                actor: {
-                    userId: String((user as any)._id),
-                    email: (user as any).email,
-                    username: (user as any).username,
-                    name: (user as any).name,
-                },
-                action: { module: 'auth', operation: 'login', status: 'fail', reason: 'userNotActive' },
-                http: { statusCode: 400 },
-            });
-            throw new BadRequestException(ErrorCodes.auth.userNotActive);
-        }
-
-        void this.safeAuditLog({
-            eventType: 'auth.login.success',
-            severity: 'info',
-            actor: {
-                userId: String((user as any)._id),
-                email: (user as any).email,
-                username: (user as any).username,
-                name: (user as any).name,
-                roles: ((user as any).groups || []).map((g) => (typeof g === 'string' ? g : g?.name)).filter(Boolean),
-            },
-            action: { module: 'auth', operation: 'login', status: 'success' },
-            http: { statusCode: 200 },
-        });
+        if (!isValidPassword) throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
+        if (!(await this.isUserEnabled(user))) throw new BadRequestException(ErrorCodes.auth.userNotActive);
 
         return this.prepareTokenResponse(user);
     }
@@ -267,9 +215,5 @@ export class AppAuthService {
         });
         await this.processUser(user);
         return user;
-    }
-
-    private async safeAuditLog(_payload: any) {
-        // audit temporarily disabled in auth flow
     }
 }

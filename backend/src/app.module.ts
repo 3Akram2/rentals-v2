@@ -45,10 +45,6 @@ import { BuildingAiModule } from './building-ai/building-ai.module';
                 setup: (cls, req) => {
                     const requestId = req?.headers?.['x-request-id'] || uuidv4();
                     cls.set('requestId', requestId);
-                    cls.set('http.method', req?.method || '');
-                    cls.set('http.path', req?.originalUrl || req?.url || '');
-                    cls.set('http.ip', req?.headers?.['x-forwarded-for'] || req?.ip || req?.socket?.remoteAddress || '');
-                    cls.set('http.userAgent', req?.headers?.['user-agent'] || '');
                 },
             },
         }),
