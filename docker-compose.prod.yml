@@ -41,18 +41,6 @@ services:
       - appnet
       - public_proxy
 
-  # Separate Audit Panel (internal access path)
-  audit_panel:
-    build:
-      context: ./audit-panel
-      dockerfile: Dockerfile
-    container_name: rentals-v2_audit_panel
-    restart: unless-stopped
-    ports:
-      - "8091:80"
-    networks:
-      - public_proxy
-
 networks:
   appnet:
   public_proxy:
