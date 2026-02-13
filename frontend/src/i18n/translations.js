@@ -273,15 +273,6 @@ export const translations = {
 
     // AI Dashboard
     aiDashboard: 'AI Dashboard',
-    auditDashboard: 'Audit Dashboard',
-    autoRefresh: 'Auto refresh',
-    lastRefreshed: 'Last refreshed',
-    eventType: 'Event Type',
-    status: 'Status',
-    action: 'Action',
-    ipAddress: 'IP Address',
-    auditLoading: 'Loading audit events...',
-    auditLoadFailed: 'Failed to load audit events',
     buildingCopilot: 'Building Copilot',
     aiMonitoringDashboard: 'AI Monitoring Dashboard',
     aiPromptVersions: 'Prompt Versions',
@@ -600,15 +591,6 @@ export const translations = {
 
     // AI Dashboard
     aiDashboard: 'لوحة الذكاء الاصطناعي',
-    auditDashboard: 'لوحة التدقيق',
-    autoRefresh: 'تحديث تلقائي',
-    lastRefreshed: 'آخر تحديث',
-    eventType: 'نوع الحدث',
-    status: 'الحالة',
-    action: 'الإجراء',
-    ipAddress: 'عنوان IP',
-    auditLoading: 'جارٍ تحميل سجلات التدقيق...',
-    auditLoadFailed: 'فشل تحميل سجلات التدقيق',
     buildingCopilot: 'مساعد المبنى',
     aiMonitoringDashboard: 'لوحة متابعة الذكاء الاصطناعي',
     aiPromptVersions: 'إصدارات التوجيه',
