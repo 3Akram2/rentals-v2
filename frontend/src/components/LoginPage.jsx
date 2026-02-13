@@ -42,11 +42,11 @@ function LoginPage() {
           <div className="form-group">
             <label>{t('email')}</label>
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={e => setEmail(e.target.value)}
               required
-              autoComplete="email"
+              autoComplete="username"
             />
           </div>
 
