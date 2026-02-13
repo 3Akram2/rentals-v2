@@ -3942,6 +3942,16 @@ td.no-print {
   font-size: 0.9rem;
 }
 
+.login-card input {
+  background: #ffffff !important;
+  color: #0f172a !important;
+  border-color: #cbd5e1;
+}
+
+.login-card input::placeholder {
+  color: #64748b;
+}
+
 @media (max-width: 480px) {
   .login-card {
     padding: 25px 20px;
