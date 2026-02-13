@@ -48,8 +48,8 @@ services:
       dockerfile: Dockerfile
     container_name: rentals-v2_audit_panel
     restart: unless-stopped
-    expose:
-      - "80"
+    ports:
+      - "8091:80"
     networks:
       - public_proxy
 
