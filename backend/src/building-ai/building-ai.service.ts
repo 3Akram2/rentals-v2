@@ -15,7 +15,7 @@ import { Payment } from 'src/payments/payment.model';
 
 @Injectable()
 export class BuildingAiService {
-    private readonly model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
+    private readonly model = process.env.GROQ_MODEL || 'openai/gpt-oss-120b';
 
     constructor(
         private readonly buildingsService: BuildingsService,
