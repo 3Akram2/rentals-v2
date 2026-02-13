@@ -8,6 +8,10 @@ type ListEventsFilter = {
     pageSize: number;
     eventType?: string;
     status?: 'success' | 'fail';
+    module?: string;
+    userId?: string;
+    dateFrom?: string;
+    dateTo?: string;
 };
 
 @Injectable()
@@ -55,6 +59,14 @@ export class AuditService {
         const query: any = {};
         if (filter.eventType) query.eventType = filter.eventType;
         if (filter.status) query['action.status'] = filter.status;
+        if (filter.module) query['action.module'] = filter.module;
+        if (filter.userId) query['actor.userId'] = filter.userId;
+
+        if (filter.dateFrom || filter.dateTo) {
+            query.ts = {};
+            if (filter.dateFrom) query.ts.$gte = new Date(filter.dateFrom);
+            if (filter.dateTo) query.ts.$lte = new Date(filter.dateTo);
+        }
 
         const [data, total] = await Promise.all([
             this.auditRepo.findAll(query, {
