@@ -3852,6 +3852,7 @@ td.no-print {
   max-width: 400px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
   position: relative;
+  color-scheme: light;
 }
 
 .login-lang-toggle {
@@ -3945,11 +3946,21 @@ td.no-print {
 .login-card input {
   background: #ffffff !important;
   color: #0f172a !important;
-  border-color: #cbd5e1;
+  border-color: #cbd5e1 !important;
+  -webkit-text-fill-color: #0f172a !important;
 }
 
 .login-card input::placeholder {
   color: #64748b;
+}
+
+.login-card input:-webkit-autofill,
+.login-card input:-webkit-autofill:hover,
+.login-card input:-webkit-autofill:focus,
+.login-card input:-webkit-autofill:active {
+  -webkit-box-shadow: 0 0 0px 1000px #ffffff inset !important;
+  -webkit-text-fill-color: #0f172a !important;
+  border-color: #cbd5e1 !important;
 }
 
 @media (max-width: 480px) {
