@@ -14,6 +14,15 @@ function AuditDashboard() {
   const [lastRefreshed, setLastRefreshed] = useState(null);
   const [autoRefresh, setAutoRefresh] = useState(false);
 
+  const [filters, setFilters] = useState({
+    eventType: '',
+    status: '',
+    module: '',
+    userId: '',
+    dateFrom: '',
+    dateTo: '',
+  });
+
   const totalPages = Math.max(1, Math.ceil(total / pageSize));
 
   async function load(initial = false, targetPage = page) {
@@ -22,7 +31,7 @@ function AuditDashboard() {
 
     setError('');
     try {
-      const res = await api.getAuditEvents({ page: targetPage, pageSize });
+      const res = await api.getAuditEvents({ page: targetPage, pageSize, ...filters });
       setEvents(res?.data || []);
       setTotal(Number(res?.total || 0));
       setPage(Number(res?.page || targetPage));
@@ -35,6 +44,17 @@ function AuditDashboard() {
     }
   }
 
+  function applyFilters() {
+    setPage(1);
+    load(false, 1);
+  }
+
+  function clearFilters() {
+    setFilters({ eventType: '', status: '', module: '', userId: '', dateFrom: '', dateTo: '' });
+    setPage(1);
+    setTimeout(() => load(false, 1), 0);
+  }
+
   useEffect(() => {
     load(true, 1);
   }, []);
@@ -43,7 +63,7 @@ function AuditDashboard() {
     if (!autoRefresh) return;
     const id = setInterval(() => load(false, page), 15000);
     return () => clearInterval(id);
-  }, [autoRefresh, page]);
+  }, [autoRefresh, page, filters]);
 
   const rows = useMemo(() => events || [], [events]);
 
@@ -67,6 +87,24 @@ function AuditDashboard() {
 
         <div className="card-subtitle" style={{ marginBottom: 12 }}>
           {t('lastRefreshed')}: {lastRefreshed ? lastRefreshed.toLocaleString(lang === 'ar' ? 'ar-EG' : 'en-US') : '-'}
+        </div>
+
+        <div className="report-filters" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit,minmax(180px,1fr))', gap: 8, marginBottom: 12 }}>
+          <input className="form-control" placeholder={t('eventType')} value={filters.eventType} onChange={(e) => setFilters((f) => ({ ...f, eventType: e.target.value }))} />
+          <input className="form-control" placeholder={t('module')} value={filters.module} onChange={(e) => setFilters((f) => ({ ...f, module: e.target.value }))} />
+          <input className="form-control" placeholder="User ID" value={filters.userId} onChange={(e) => setFilters((f) => ({ ...f, userId: e.target.value }))} />
+          <select className="form-control" value={filters.status} onChange={(e) => setFilters((f) => ({ ...f, status: e.target.value }))}>
+            <option value="">{t('status')}</option>
+            <option value="success">success</option>
+            <option value="fail">fail</option>
+          </select>
+          <input className="form-control" type="date" value={filters.dateFrom} onChange={(e) => setFilters((f) => ({ ...f, dateFrom: e.target.value }))} />
+          <input className="form-control" type="date" value={filters.dateTo} onChange={(e) => setFilters((f) => ({ ...f, dateTo: e.target.value }))} />
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, marginBottom: 12 }}>
+          <button className="btn btn-primary btn-small" onClick={applyFilters}>{t('applyFilters')}</button>
+          <button className="btn btn-secondary btn-small" onClick={clearFilters}>{t('clearFilters')}</button>
         </div>
 
         {error && <div className="error" style={{ marginBottom: 10 }}>{error}</div>}
