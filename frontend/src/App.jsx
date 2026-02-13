@@ -23,7 +23,6 @@ import AdminUserManagement from './components/AdminUserManagement';
 import ProfilePage from './components/ProfilePage';
 import BuildingAiAssistant from './components/BuildingAiAssistant';
 import AiDashboard from './components/AiDashboard';
-import AuditDashboard from './components/AuditDashboard';
 import * as api from './api';
 
 function App() {
@@ -294,8 +293,6 @@ function App() {
         <ProfilePage />
       ) : currentView === 'aiDashboard' ? (
         <AiDashboard />
-      ) : currentView === 'auditDashboard' ? (
-        <AuditDashboard />
       ) : currentView === 'adminUsers' ? (
         <AdminUserManagement onClose={() => setCurrentView('buildings')} />
       ) : currentView === 'users' ? (
