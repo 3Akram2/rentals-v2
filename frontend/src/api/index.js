@@ -373,3 +373,9 @@ export async function deleteAiChat(id) {
   });
   return handleResponseOrThrow(res);
 }
+
+export async function getAuditEvents(params = {}) {
+  const query = new URLSearchParams(params).toString();
+  const res = await fetch(`${API_BASE}/audit/events${query ? `?${query}` : ''}`, { headers: authHeaders(false) });
+  return handleResponseOrThrow(res);
+}
