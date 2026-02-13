@@ -171,7 +171,7 @@ export class AppAuthService {
         );
 
         if (!user) {
-            void this.safeAuditLog({
+            await this.auditService.log({
                 eventType: 'auth.login.fail',
                 severity: 'warn',
                 actor: { email },
@@ -184,7 +184,7 @@ export class AppAuthService {
 
         const isValidPassword = await this.comparePassword(password, user.password);
         if (!isValidPassword) {
-            void this.safeAuditLog({
+            await this.auditService.log({
                 eventType: 'auth.login.fail',
                 severity: 'warn',
                 actor: {
@@ -199,7 +199,7 @@ export class AppAuthService {
             throw new BadRequestException(ErrorCodes.auth.wrongCredentials);
         }
         if (!(await this.isUserEnabled(user))) {
-            void this.safeAuditLog({
+            await this.auditService.log({
                 eventType: 'auth.login.fail',
                 severity: 'warn',
                 actor: {
@@ -214,7 +214,7 @@ export class AppAuthService {
             throw new BadRequestException(ErrorCodes.auth.userNotActive);
         }
 
-        void this.safeAuditLog({
+        await this.auditService.log({
             eventType: 'auth.login.success',
             severity: 'info',
             actor: {
@@ -269,13 +269,5 @@ export class AppAuthService {
         });
         await this.processUser(user);
         return user;
-    }
-
-    private async safeAuditLog(payload: any) {
-        try {
-            await this.auditService.log(payload);
-        } catch {
-            // audit must never block auth flow
-        }
     }
 }
