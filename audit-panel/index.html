@@ -1,0 +1,132 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Rentals Audit Panel</title>
+  <style>
+    body{font-family:Arial,sans-serif;background:#0b1220;color:#e5e7eb;margin:0;padding:20px}
+    .card{background:#111827;border:1px solid #334155;border-radius:12px;padding:16px;margin-bottom:16px}
+    input,button,select{padding:10px;border-radius:8px;border:1px solid #334155;background:#0f172a;color:#e5e7eb}
+    button{cursor:pointer;background:#2563eb;border:none}
+    table{width:100%;border-collapse:collapse}
+    th,td{border:1px solid #334155;padding:8px;text-align:left;font-size:12px}
+    th{background:#1f2937}
+    .row{display:flex;gap:8px;flex-wrap:wrap}
+  </style>
+</head>
+<body>
+  <h2>Audit Dashboard (Separate Panel)</h2>
+
+  <div class="card" id="loginCard">
+    <div class="row">
+      <input id="email" placeholder="Email / Username" />
+      <input id="password" placeholder="Password" type="password" />
+      <button onclick="login()">Login</button>
+      <button onclick="logout()" style="background:#475569">Logout</button>
+    </div>
+    <p id="status"></p>
+  </div>
+
+  <div class="card">
+    <div class="row" style="margin-bottom:10px">
+      <input id="eventType" placeholder="eventType" />
+      <input id="module" placeholder="module" />
+      <input id="userId" placeholder="userId" />
+      <select id="statusFilter">
+        <option value="">status</option>
+        <option value="success">success</option>
+        <option value="fail">fail</option>
+      </select>
+      <input id="dateFrom" type="date" />
+      <input id="dateTo" type="date" />
+      <button onclick="loadEvents(1)">Apply</button>
+      <button onclick="clearFilters()" style="background:#475569">Clear</button>
+      <button onclick="loadEvents(page)" style="background:#0ea5e9">Refresh</button>
+      <label><input type="checkbox" id="autoRefresh" onchange="toggleAuto()"/> Auto refresh</label>
+    </div>
+    <div id="meta" style="margin-bottom:8px;color:#93c5fd"></div>
+    <table>
+      <thead>
+        <tr><th>Time</th><th>User</th><th>Event</th><th>Status</th><th>Action</th><th>IP</th></tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="row" style="margin-top:10px">
+      <button onclick="prevPage()">Previous</button>
+      <div id="pageInfo"></div>
+      <button onclick="nextPage()">Next</button>
+    </div>
+  </div>
+
+<script>
+let token = localStorage.getItem('audit_token') || '';
+let page = 1, pageSize = 25, totalPages = 1, autoId = null;
+
+function setStatus(msg){document.getElementById('status').textContent = msg || ''}
+function authHeaders(){ return token ? {'Authorization':'Bearer '+token} : {} }
+
+async function login(){
+  const email = document.getElementById('email').value.trim();
+  const password = document.getElementById('password').value;
+  const res = await fetch('/api/authentication/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password})});
+  const data = await res.json();
+  if(!res.ok || !data.accessToken){ setStatus('Login failed'); return; }
+  token = data.accessToken; localStorage.setItem('audit_token', token); setStatus('Logged in');
+  loadEvents(1);
+}
+
+function logout(){ token=''; localStorage.removeItem('audit_token'); setStatus('Logged out'); document.getElementById('rows').innerHTML=''; }
+
+function getFilters(){
+  return {
+    eventType: document.getElementById('eventType').value.trim(),
+    module: document.getElementById('module').value.trim(),
+    userId: document.getElementById('userId').value.trim(),
+    status: document.getElementById('statusFilter').value,
+    dateFrom: document.getElementById('dateFrom').value,
+    dateTo: document.getElementById('dateTo').value,
+  }
+}
+
+function clearFilters(){
+  ['eventType','module','userId','dateFrom','dateTo'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('statusFilter').value='';
+  loadEvents(1);
+}
+
+async function loadEvents(p=1){
+  page = p;
+  if(!token){ setStatus('Please login'); return; }
+  const params = new URLSearchParams({page:String(page), pageSize:String(pageSize)});
+  const f = getFilters(); Object.entries(f).forEach(([k,v])=>{ if(v) params.set(k,v); });
+  const res = await fetch('/api/audit/events?'+params.toString(), {headers:authHeaders()});
+  const data = await res.json();
+  if(!res.ok){ setStatus(data.message || 'Failed to load'); return; }
+  const rows = data.data || [];
+  totalPages = Math.max(1, Math.ceil((data.total||0)/pageSize));
+  document.getElementById('pageInfo').textContent = `Page ${page}/${totalPages}`;
+  document.getElementById('meta').textContent = `Total: ${data.total||0} • Last refreshed: ${new Date().toLocaleString()}`;
+  document.getElementById('rows').innerHTML = rows.map(e=>`<tr>
+    <td>${new Date(e.ts||e.createdAt).toLocaleString()}</td>
+    <td>${(e.actor&& (e.actor.name||e.actor.email||e.actor.username))||'-'}</td>
+    <td>${e.eventType||'-'}</td>
+    <td>${(e.action&&e.action.status)||'-'}</td>
+    <td>${(e.action&&e.action.module)? `${e.action.module}.${e.action.operation}`:'-'}</td>
+    <td>${(e.client&&e.client.ip)||'-'}</td>
+  </tr>`).join('');
+}
+
+function prevPage(){ if(page>1) loadEvents(page-1) }
+function nextPage(){ if(page<totalPages) loadEvents(page+1) }
+
+function toggleAuto(){
+  const on = document.getElementById('autoRefresh').checked;
+  if(autoId) clearInterval(autoId);
+  if(on) autoId = setInterval(()=>loadEvents(page), 15000);
+}
+
+if(token){ setStatus('Session restored'); loadEvents(1); }
+</script>
+</body>
+</html>

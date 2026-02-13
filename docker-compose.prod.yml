@@ -1,0 +1,63 @@
+services:
+  # Keep DB container as requested (not exposed publicly)
+  mongo:
+    image: mongo:7
+    container_name: rentals-v2_mongo
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+    volumes:
+      - mongo_data:/data/db
+    networks: [appnet]
+
+  # Backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: rentals-v2_backend
+    restart: unless-stopped
+    env_file:
+      - ./backend/.env
+    expose:
+      - "4001"
+    depends_on:
+      - mongo
+    networks:
+      - appnet
+      - public_proxy
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: rentals-v2_frontend
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - appnet
+      - public_proxy
+
+  # Separate Audit Panel (internal access path)
+  audit_panel:
+    build:
+      context: ./audit-panel
+      dockerfile: Dockerfile
+    container_name: rentals-v2_audit_panel
+    restart: unless-stopped
+    expose:
+      - "80"
+    networks:
+      - public_proxy
+
+networks:
+  appnet:
+  public_proxy:
+    external: true
+    name: public-proxy
+
+volumes:
+  mongo_data:
