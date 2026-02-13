@@ -16,10 +16,6 @@ export class AuditController {
         @Query('pageSize') pageSize = '25',
         @Query('eventType') eventType?: string,
         @Query('status') status?: 'success' | 'fail',
-        @Query('module') module?: string,
-        @Query('userId') userId?: string,
-        @Query('dateFrom') dateFrom?: string,
-        @Query('dateTo') dateTo?: string,
     ) {
         const pageNum = Math.max(1, Number(page) || 1);
         const sizeNum = Math.min(100, Math.max(1, Number(pageSize) || 25));
@@ -29,10 +25,6 @@ export class AuditController {
             pageSize: sizeNum,
             eventType,
             status,
-            module,
-            userId,
-            dateFrom,
-            dateTo,
         });
     }
 }
