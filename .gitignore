@@ -1,10 +1,10 @@
 node_modules/
 dist/
 .docker/
-.env
 *.log
 .DS_Store
 .vscode/
 .idea/
 coverage/
 .claude/
+config.bat
