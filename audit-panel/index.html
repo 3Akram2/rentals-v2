@@ -69,7 +69,7 @@ function authHeaders(){ return token ? {'Authorization':'Bearer '+token} : {} }
 async function login(){
   const email = document.getElementById('email').value.trim();
   const password = document.getElementById('password').value;
-  const res = await fetch('/api/authentication/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password})});
+  const res = await fetch('https://rentalsmanagement.ddns.net/api/authentication/login', {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({email,password})});
   const data = await res.json();
   if(!res.ok || !data.accessToken){ setStatus('Login failed'); return; }
   token = data.accessToken; localStorage.setItem('audit_token', token); setStatus('Logged in');
@@ -100,7 +100,7 @@ async function loadEvents(p=1){
   if(!token){ setStatus('Please login'); return; }
   const params = new URLSearchParams({page:String(page), pageSize:String(pageSize)});
   const f = getFilters(); Object.entries(f).forEach(([k,v])=>{ if(v) params.set(k,v); });
-  const res = await fetch('/api/audit/events?'+params.toString(), {headers:authHeaders()});
+  const res = await fetch('https://rentalsmanagement.ddns.net/api/audit/events?'+params.toString(), {headers:authHeaders()});
   const data = await res.json();
   if(!res.ok){ setStatus(data.message || 'Failed to load'); return; }
   const rows = data.data || [];
