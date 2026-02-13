@@ -9,7 +9,6 @@ import { User } from 'src/users/user.model';
 import { ErrorCodes } from 'src/shared/errors/custom';
 import { GroupService } from 'src/groups/group.service';
 import { UserLoginDto } from './dto/user-login.dto';
-import { AuditService } from 'src/audit/audit.service';
 
 @Injectable()
 export class AppAuthService {
@@ -27,7 +26,6 @@ export class AppAuthService {
         private readonly jwtService: JwtService,
         private readonly configService: ConfigService,
         private readonly groupService: GroupService,
-        private readonly auditService: AuditService,
     ) {
         this.usernameField = this.configService.get('server')['authentication']['usernameField'];
         this.passwordField = this.configService.get('server')['authentication']['passwordField'];
@@ -271,11 +269,7 @@ export class AppAuthService {
         return user;
     }
 
-    private async safeAuditLog(payload: any) {
-        try {
-            await this.auditService.log(payload);
-        } catch {
-            // audit must never block auth flow
-        }
+    private async safeAuditLog(_payload: any) {
+        // audit temporarily disabled in auth flow
     }
 }
