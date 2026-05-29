@@ -23,6 +23,7 @@ import AdminUserManagement from './components/AdminUserManagement';
 import ProfilePage from './components/ProfilePage';
 import BuildingAiAssistant from './components/BuildingAiAssistant';
 import AiDashboard from './components/AiDashboard';
+import BuildingExpenses from './components/BuildingExpenses';
 import * as api from './api';
 
 function App() {
@@ -58,6 +59,10 @@ function App() {
   const canDeleteProperty = hasPermission('property@delete');
   const canCreatePayment = hasPermission('payment@create');
   const canUpdatePayment = hasPermission('payment@update');
+  const canReadExpenses = hasPermission('expense@read');
+  const canCreateExpense = hasPermission('expense@create');
+  const canDeleteExpense = hasPermission('expense@delete');
+  const canManageExpenses = canCreateExpense || canDeleteExpense;
 
   useEffect(() => {
     if (user) loadBuildings();
@@ -315,12 +320,14 @@ function App() {
           onEdit={(b) => openModal('building', b)}
           onDelete={handleDeleteBuilding}
           onReport={(b) => openModal('report', b)}
+          onExpenses={(b) => openModal('expenses', b)}
           onOwnership={(b) => openModal('ownership', b)}
           onDivision={(b) => openModal('division', b)}
           canCreateBuilding={canCreateBuilding}
           canUpdateBuilding={canUpdateBuilding}
           canDeleteBuilding={canDeleteBuilding}
           canReadReport={canReadReport}
+          canReadExpenses={canReadExpenses || canManageExpenses}
           canManageOwnership={canManageOwnership}
         />
       ) : (
@@ -348,6 +355,11 @@ function App() {
                 {canReadReport && (
                   <button className="btn btn-primary btn-small" onClick={() => openModal('division', selectedBuilding)}>
                     {t('divisionReport')}
+                  </button>
+                )}
+                {(canReadExpenses || canManageExpenses) && (
+                  <button className="btn btn-primary btn-small" onClick={() => openModal('expenses', selectedBuilding)}>
+                    {t('expenses')}
                   </button>
                 )}
                 {canUpdateBuilding && (
@@ -469,7 +481,19 @@ function App() {
           <Report
             building={modal.data}
             onClose={closeModal}
-            canManageExpenses={hasPermission('expense@create') || hasPermission('expense@delete')}
+            onManageExpenses={() => openModal('expenses', modal.data)}
+            canManageExpenses={canReadExpenses || canManageExpenses}
+          />
+        </ReportModal>
+      )}
+
+      {modal.type === 'expenses' && (
+        <ReportModal onClose={closeModal}>
+          <BuildingExpenses
+            building={modal.data}
+            onClose={closeModal}
+            canCreateExpense={canCreateExpense}
+            canDeleteExpense={canDeleteExpense}
           />
         </ReportModal>
       )}

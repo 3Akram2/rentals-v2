@@ -7,12 +7,14 @@ function BuildingList({
   onEdit,
   onDelete,
   onReport,
+  onExpenses,
   onOwnership,
   onDivision,
   canCreateBuilding,
   canUpdateBuilding,
   canDeleteBuilding,
   canReadReport,
+  canReadExpenses,
   canManageOwnership,
 }) {
   const { t } = useLang();
@@ -57,6 +59,11 @@ function BuildingList({
                 {canReadReport && (
                   <button className="btn btn-secondary btn-small" onClick={() => onDivision(building)}>
                     {t('divisionReport')}
+                  </button>
+                )}
+                {canReadExpenses && (
+                  <button className="btn btn-secondary btn-small" onClick={() => onExpenses(building)}>
+                    {t('expenses')}
                   </button>
                 )}
                 {canManageOwnership && (
