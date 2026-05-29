@@ -1,14 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { useLang } from '../context/LanguageContext';
-import { createExpense, deleteExpense, getYearlyReport } from '../api';
-import NumberInput from './NumberInput';
+import { getYearlyReport } from '../api';
 import DialogCloseButton from './DialogCloseButton';
 import { formatNumber } from '../utils/numberToArabicWords';
 
 function GroupDetailsReport({ group, groupShare: initialGroupShare, year: initialYear, buildingId, buildingNumber, totalKirats, expenses: initialExpenses, onExpenseChange, onClose }) {
   const { t, isRtl } = useLang();
   const printRef = useRef();
-  const [newExpense, setNewExpense] = useState({ description: '', amount: '' });
   const [year, setYear] = useState(initialYear);
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -54,26 +52,6 @@ function GroupDetailsReport({ group, groupShare: initialGroupShare, year: initia
   function calculateMemberAmount(memberKirats) {
     if (group.kirats === 0) return 0;
     return (memberKirats / group.kirats) * netGroupShare;
-  }
-
-  async function handleAddExpense(e) {
-    e.preventDefault();
-    if (!newExpense.description || !newExpense.amount) return;
-    await createExpense({
-      buildingId,
-      year,
-      description: newExpense.description,
-      amount: Number(newExpense.amount),
-      ownerGroupId: group._id
-    });
-    setNewExpense({ description: '', amount: '' });
-    onExpenseChange();
-  }
-
-  async function handleDeleteExpense(expenseId) {
-    if (!window.confirm(t('deleteExpense'))) return;
-    await deleteExpense(expenseId);
-    onExpenseChange();
   }
 
   function handlePrint() {
@@ -238,28 +216,12 @@ function GroupDetailsReport({ group, groupShare: initialGroupShare, year: initia
         {/* Group Expenses Section */}
         <div className="group-expenses-section">
           <h4>{t('groupExpenses')}</h4>
-          <form onSubmit={handleAddExpense} className="expense-form no-print">
-            <input
-              type="text"
-              placeholder={t('description')}
-              value={newExpense.description}
-              onChange={e => setNewExpense({ ...newExpense, description: e.target.value })}
-            />
-            <NumberInput
-              placeholder={t('amount')}
-              value={newExpense.amount}
-              onChange={e => setNewExpense({ ...newExpense, amount: e.target.value })}
-            />
-            <button type="submit" className="btn btn-primary">{t('add')}</button>
-          </form>
-
           {groupExpenses.length > 0 && (
             <table className="expense-table">
               <thead>
                 <tr>
                   <th>{t('description')}</th>
                   <th>{t('amount')}</th>
-                  <th className="no-print"></th>
                 </tr>
               </thead>
               <tbody>
@@ -267,14 +229,6 @@ function GroupDetailsReport({ group, groupShare: initialGroupShare, year: initia
                   <tr key={exp._id}>
                     <td>{exp.description}</td>
                     <td>{formatNumber(exp.amount)}</td>
-                    <td className="no-print">
-                      <button
-                        className="btn btn-danger btn-small"
-                        onClick={() => handleDeleteExpense(exp._id)}
-                      >
-                        {t('delete')}
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>
