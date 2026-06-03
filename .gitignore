@@ -7,4 +7,5 @@ dist/
 .idea/
 coverage/
 .claude/
-config.bat
+.env
+.env.local
